@@ -5,3 +5,5 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.95"
+vulkanalia = "0.25.0"
+winit = "0.30.7"
