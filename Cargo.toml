@@ -1,5 +1,5 @@
 [package]
-name = "ft_scop"
+name = "scop"
 version = "0.1.0"
 edition = "2021"
 
