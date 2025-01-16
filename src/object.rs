@@ -18,6 +18,9 @@ impl std::str::FromStr for Object {
 
         for line in s.lines() {
             let line: Vec<&str> = line.split_ascii_whitespace().collect();
+            if line.len() < 2 {
+                continue;
+            }
             match line[0] {
                 "v" => {
                     if line.len() != 4 {
