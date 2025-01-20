@@ -70,13 +70,20 @@ pub struct RenderContext {
 
 impl App {
     pub fn new(event_loop: &EventLoop<()>) -> Result<Self> {
+        // load the vulkan library and create an instance of it
         let library = VulkanLibrary::new()?;
         let instance = create_instance(library, event_loop)?;
+
+        // selecting a physical device (eg. graphic card) and creating a Device and a queue from it that we will use to do all future operations
         let (device, queue) = create_device(instance.clone(), event_loop)?;
+
+        // this allows vulkan to manage allocating buffer for us
         let command_buffer_allocator = Arc::new(StandardCommandBufferAllocator::new(
             device.clone(),
             Default::default(),
         ));
+
+        
         let vertex_buffer = create_vertex_buffer(device.clone())?;
         let rcx = None;
 
