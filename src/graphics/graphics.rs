@@ -492,13 +492,13 @@ fn window_size_dependent_setup(
 mod vs {
     vulkano_shaders::shader! {
         ty: "vertex",
-        path: "src/vertex.glsl"
+        path: "src/shaders/vertex.glsl"
     }
 }
 
 mod fs {
     vulkano_shaders::shader! {
         ty: "fragment",
-        path: "src/fragment.glsl"
+        path: "src/shaders/fragment.glsl"
     }
 }

@@ -1,9 +1,9 @@
 mod graphics;
-mod object;
+mod object_loader;
 
 use anyhow::{bail, Result};
 use graphics::App;
-use object::Object;
+use object_loader::Object;
 use std::env;
 use std::fs;
 use std::str::FromStr;
@@ -15,15 +15,17 @@ fn main() -> Result<()> {
         bail!("This program expect one argument");
     }
     let file = fs::read_to_string(&args[1])?;
-    let _object = match Object::from_str(&file) {
+    let object = match Object::from_str(&file) {
         Ok(object) => object,
         Err(_) => bail!("Failed to parse the obj file"),
     };
 
-    let event_loop = EventLoop::new()?;
-    let mut app = App::new(&event_loop)?;
+    println!("{object:?}");
 
-    event_loop.run_app(&mut app)?;
+    // let event_loop = EventLoop::new()?;
+    // let mut app = App::new(&event_loop)?;
+
+    // event_loop.run_app(&mut app)?;
 
     Ok(())
 }
