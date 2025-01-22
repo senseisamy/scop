@@ -10,7 +10,7 @@ pub struct Position {
 #[derive(Debug)]
 pub struct Object {
     pub vertex: Vec<Position>,
-    pub indice: Vec<u16>
+    pub indice: Vec<Vec<u16>>
 }
 
 pub struct ParseObjectError;
@@ -49,10 +49,12 @@ impl std::str::FromStr for Object {
                     if line.len() < 4 {
                         return Err(ParseObjectError);
                     }
+                    let mut indices: Vec<u16> = Vec::new();
                     for indice in line.into_iter().skip(1) {
                         let indice = indice.parse::<u16>().map_err(|_| ParseObjectError)?;
-                        obj.indice.push(indice);
+                        indices.push(indice);
                     }
+                    obj.indice.push(indices);
                 }
                 "#" | "o" | "s" | "mtllib" | "usemtl" => continue,
                 _ => return Err(ParseObjectError),
