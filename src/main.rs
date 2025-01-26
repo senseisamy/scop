@@ -1,4 +1,5 @@
 mod graphics;
+mod math;
 mod object_loader;
 
 use anyhow::{bail, Result};
@@ -20,7 +21,7 @@ fn main() -> Result<()> {
         Err(_) => bail!("Failed to parse the obj file"),
     };
 
-    println!("{object:?}");
+    //println!("{object:?}");
 
     let event_loop = EventLoop::new()?;
     let mut app = App::new(&event_loop, &object)?;

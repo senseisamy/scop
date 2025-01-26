@@ -1,3 +1,3 @@
 pub mod object;
 
-pub use object::{Object, Position};
+pub use object::{Object, Position, Normal};

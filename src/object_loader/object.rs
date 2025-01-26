@@ -7,6 +7,13 @@ pub struct Position {
     pub position: [f32; 3],
 }
 
+#[derive(BufferContents, Vertex, Debug, Clone)]
+#[repr(C)]
+pub struct Normal {
+    #[format(R32G32B32_SFLOAT)]
+    pub normal: [f32; 3],
+}
+
 #[derive(Debug, Clone)]
 pub struct Object {
     pub vertex: Vec<Position>,

@@ -1,22 +1,18 @@
 use super::App;
-use crate::object_loader::{Object, Position};
+use crate::object_loader::{Normal, Object, Position};
 use anyhow::{Context, Result};
 use std::sync::Arc;
 use vulkano::{
-    buffer::{Buffer, BufferCreateInfo, BufferUsage, Subbuffer},
-    command_buffer::allocator::StandardCommandBufferAllocator,
-    device::{
+    buffer::{
+        allocator::{SubbufferAllocator, SubbufferAllocatorCreateInfo},
+        Buffer, BufferCreateInfo, BufferUsage, Subbuffer,
+    }, command_buffer::allocator::StandardCommandBufferAllocator, descriptor_set::allocator::StandardDescriptorSetAllocator, device::{
         physical::PhysicalDeviceType, Device, DeviceCreateInfo, DeviceExtensions, Queue,
         QueueCreateInfo, QueueFlags,
-    },
-    image::{Image, ImageUsage},
-    instance::{Instance, InstanceCreateFlags, InstanceCreateInfo},
-    memory::allocator::{AllocationCreateInfo, MemoryTypeFilter, StandardMemoryAllocator},
-    render_pass::RenderPass,
-    swapchain::{Surface, Swapchain, SwapchainCreateInfo},
-    VulkanLibrary,
+    }, format::Format, image::{Image, ImageUsage}, instance::{Instance, InstanceCreateFlags, InstanceCreateInfo}, memory::allocator::{AllocationCreateInfo, MemoryTypeFilter, StandardMemoryAllocator}, render_pass::RenderPass, swapchain::{Surface, Swapchain, SwapchainCreateInfo}, VulkanLibrary
 };
 use winit::{dpi::PhysicalSize, event_loop::EventLoop};
+use super::model::{INDICES, POSITIONS, NORMALS};
 
 impl App {
     pub fn new(event_loop: &EventLoop<()>, object: &Object) -> Result<Self> {
@@ -29,13 +25,29 @@ impl App {
 
         let memory_allocator = Arc::new(StandardMemoryAllocator::new_default(device.clone()));
 
-        // this allows vulkan to manage allocating buffer for us
+        let descriptor_set_allocator = Arc::new(StandardDescriptorSetAllocator::new(
+            device.clone(),
+            Default::default(),
+        ));
+
         let command_buffer_allocator = Arc::new(StandardCommandBufferAllocator::new(
             device.clone(),
             Default::default(),
         ));
 
-        let (vertex_buffer, index_buffer) = create_buffers(&memory_allocator, object)?;
+        let uniform_buffer_allocator = SubbufferAllocator::new(
+            memory_allocator.clone(),
+            SubbufferAllocatorCreateInfo {
+                buffer_usage: BufferUsage::UNIFORM_BUFFER,
+                memory_type_filter: MemoryTypeFilter::PREFER_DEVICE
+                    | MemoryTypeFilter::HOST_SEQUENTIAL_WRITE,
+                ..Default::default()
+            },
+        );
+
+        let (vertex_buffer, normals_buffer, index_buffer) =
+            create_buffers(&memory_allocator, object)?;
+
         let rcx = None;
 
         Ok(Self {
@@ -43,8 +55,11 @@ impl App {
             device,
             queue,
             memory_allocator,
+            descriptor_set_allocator,
             command_buffer_allocator,
+            uniform_buffer_allocator,
             vertex_buffer,
+            normals_buffer,
             index_buffer,
             rcx,
         })
@@ -93,13 +108,19 @@ impl App {
                     format: swapchain.image_format(),
                     samples: 1,
                     load_op: Clear,
-                    store_op: Store
-                }
+                    store_op: Store,
+                },
+                depth_stencil: {
+                    format: Format::D16_UNORM,
+                    samples: 1,
+                    load_op: Clear,
+                    store_op: DontCare,
+                },
             },
             pass: {
                 color: [color],
-                depth_stencil: {}
-            }
+                depth_stencil: {depth_stencil},
+            },
         )?;
 
         Ok(render_pass)
@@ -179,7 +200,10 @@ fn create_device(
     Ok((device, queue))
 }
 
-fn create_buffers(memory_allocator: &Arc<StandardMemoryAllocator>, object: &Object) -> Result<(Subbuffer<[Position]>, Subbuffer<[u16]>)> {
+fn create_buffers(
+    memory_allocator: &Arc<StandardMemoryAllocator>,
+    object: &Object,
+) -> Result<(Subbuffer<[Position]>, Subbuffer<[Normal]>, Subbuffer<[u16]>)> {
     let vertex_buffer = Buffer::from_iter(
         memory_allocator.clone(),
         BufferCreateInfo {
@@ -191,10 +215,24 @@ fn create_buffers(memory_allocator: &Arc<StandardMemoryAllocator>, object: &Obje
                 | MemoryTypeFilter::HOST_SEQUENTIAL_WRITE,
             ..Default::default()
         },
-        object.vertex.clone()
+        POSITIONS
     )?;
 
-    let index_buffer= Buffer::from_iter(
+    let normals_buffer = Buffer::from_iter(
+        memory_allocator.clone(),
+        BufferCreateInfo {
+            usage: BufferUsage::VERTEX_BUFFER,
+            ..Default::default()
+        },
+        AllocationCreateInfo {
+            memory_type_filter: MemoryTypeFilter::PREFER_DEVICE
+                | MemoryTypeFilter::HOST_SEQUENTIAL_WRITE,
+            ..Default::default()
+        },
+        NORMALS
+    )?;
+
+    let index_buffer = Buffer::from_iter(
         memory_allocator.clone(),
         BufferCreateInfo {
             usage: BufferUsage::INDEX_BUFFER,
@@ -205,8 +243,8 @@ fn create_buffers(memory_allocator: &Arc<StandardMemoryAllocator>, object: &Obje
                 | MemoryTypeFilter::HOST_SEQUENTIAL_WRITE,
             ..Default::default()
         },
-        object.indice.clone()
+        INDICES
     )?;
 
-    Ok((vertex_buffer, index_buffer))
+    Ok((vertex_buffer, normals_buffer, index_buffer))
 }
