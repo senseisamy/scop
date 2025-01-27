@@ -1,6 +1,8 @@
 use std::ops::{Add, Index, IndexMut, Mul};
 
-#[derive(Debug, Clone)]
+use super::Mat4;
+
+#[derive(Debug, Clone, Copy)]
 pub struct Vec3 {
     pub x: f32,
     pub y: f32,
@@ -66,6 +68,19 @@ impl Mul<f32> for Vec3 {
         }
     }
 }
+
+impl Mul<Mat4> for Vec3 {
+    type Output = Self;
+
+    fn mul(self, rhs: Mat4) -> Self::Output {
+        Self {
+            x: self.x * rhs[0][0] + self.y * rhs[0][1] * self.z * rhs[0][2],
+            y: self.x * rhs[1][0] + self.y * rhs[1][1] * self.z * rhs[1][2],
+            z: self.x * rhs[2][0] + self.y * rhs[2][1] * self.z * rhs[2][2]
+        }
+    }
+}
+
 
 impl Vec3 {
     pub fn length(&self) -> f32 {

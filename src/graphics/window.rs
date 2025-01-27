@@ -30,7 +30,7 @@ use vulkano::{
     Validated, VulkanError,
 };
 use winit::{
-    application::ApplicationHandler, dpi::PhysicalSize, event::{ElementState, WindowEvent}, event_loop::ActiveEventLoop, keyboard::Key, platform::modifier_supplement::KeyEventExtModifierSupplement, window::{Window, WindowId}
+    application::ApplicationHandler, dpi::PhysicalSize, event::{ElementState, WindowEvent}, event_loop::ActiveEventLoop, keyboard::{Key, NamedKey}, platform::modifier_supplement::KeyEventExtModifierSupplement, window::{Window, WindowId}
 };
 
 const CAMERA_SPEED: f32 = 0.1;
@@ -270,29 +270,35 @@ impl ApplicationHandler for App {
                     match event.key_without_modifiers().as_ref() {
                         Key::Character("o") => {
                             world.world_transformation = world.world_transformation * Mat4::rotate_y(std::f32::consts::PI / 60.0);
-                        },
+                        }
                         Key::Character("p") => {
                             world.world_transformation = world.world_transformation * Mat4::rotate_y(-std::f32::consts::PI / 60.0);
-                        },
+                        }
                         Key::Character("w") => {
                             world.camera.position.z -= CAMERA_SPEED;
-                        },
+                        }
                         Key::Character("s") => {
                             world.camera.position.z += CAMERA_SPEED;
-                        },
+                        }
                         Key::Character("a") => {
                             world.camera.position.x += CAMERA_SPEED;
-                        },
+                        }
                         Key::Character("d") => {
                             world.camera.position.x -= CAMERA_SPEED;
-                        },
-                        Key::Named(winit::keyboard::NamedKey::Space) => {
+                        }
+                        Key::Named(NamedKey::Space) => {
                             world.camera.position.y += CAMERA_SPEED;
-                        },
-                        Key::Named(winit::keyboard::NamedKey::Shift) => {
+                        }
+                        Key::Named(NamedKey::Shift) => {
                             world.camera.position.y -= CAMERA_SPEED;
-                        },
-                        Key::Named(winit::keyboard::NamedKey::Escape) => {
+                        }
+                        Key::Named(NamedKey::ArrowRight) => {
+                            world.camera.direction = world.camera.direction * Mat4::rotate_y(std::f32::consts::PI / 60.0);
+                        }
+                        Key::Named(NamedKey::ArrowLeft) => {
+                            world.camera.direction = world.camera.direction * Mat4::rotate_y(-std::f32::consts::PI / 60.0);
+                        }
+                        Key::Named(NamedKey::Escape) => {
                             event_loop.exit();
                         }
                         _ => {}
