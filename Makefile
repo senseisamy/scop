@@ -4,7 +4,7 @@ build:
 	@cargo build --release
 
 copy:
-	@cp target/release/scop .
+	@ln -s -f target/release/scop ./scop
 
 check:
 	@cargo check

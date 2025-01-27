@@ -39,7 +39,7 @@ impl ApplicationHandler for App {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
         let window = Arc::new(
             event_loop
-                .create_window(Window::default_attributes())
+                .create_window(Window::default_attributes().with_title("scop!"))
                 .unwrap(),
         );
         let surface = Surface::from_window(self.instance.clone(), window.clone())
@@ -205,7 +205,7 @@ impl ApplicationHandler for App {
                     .begin_render_pass(
                         RenderPassBeginInfo {
                             clear_values: vec![
-                                Some([0.0, 0.0, 1.0, 1.0].into()),
+                                Some([234.0 / 255.0, 242.0 / 255.0, 227.0 / 255.0, 1.0].into()),
                                 Some(1f32.into()),
                             ],
                             ..RenderPassBeginInfo::framebuffer(
