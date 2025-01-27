@@ -1,8 +1,8 @@
 pub mod graphics;
 pub mod window;
-pub mod model;
+pub mod view;
 
-use crate::{math::Mat4, object_loader::{Normal, Position}};
+use crate::{math::{Mat4, Vec3}, object_loader::{Normal, Position}};
 use std::sync::Arc;
 use vulkano::{
     buffer::{allocator::SubbufferAllocator, Subbuffer},
@@ -28,7 +28,6 @@ pub struct App {
     pub command_buffer_allocator: Arc<StandardCommandBufferAllocator>,
     pub uniform_buffer_allocator: SubbufferAllocator,
     pub vertex_buffer: Subbuffer<[Position]>,
-    pub normals_buffer: Subbuffer<[Normal]>,
     pub index_buffer: Subbuffer<[u16]>,
     pub rcx: Option<RenderContext>,
 }
@@ -43,5 +42,15 @@ pub struct RenderContext {
     pipeline: Arc<GraphicsPipeline>,
     recreate_swapchain: bool,
     previous_frame_end: Option<Box<dyn GpuFuture>>,
-    rotation: Mat4
+    world: View
+}
+
+pub struct View {
+    world_transformation: Mat4,
+    camera: Camera
+}
+
+pub struct Camera {
+    position: Vec3,
+    direction: Vec3,
 }

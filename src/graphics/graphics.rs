@@ -12,7 +12,6 @@ use vulkano::{
     }, format::Format, image::{Image, ImageUsage}, instance::{Instance, InstanceCreateFlags, InstanceCreateInfo}, memory::allocator::{AllocationCreateInfo, MemoryTypeFilter, StandardMemoryAllocator}, render_pass::RenderPass, swapchain::{Surface, Swapchain, SwapchainCreateInfo}, VulkanLibrary
 };
 use winit::{dpi::PhysicalSize, event_loop::EventLoop};
-use super::model::{INDICES, POSITIONS, NORMALS};
 
 impl App {
     pub fn new(event_loop: &EventLoop<()>, object: &Object) -> Result<Self> {
@@ -45,7 +44,7 @@ impl App {
             },
         );
 
-        let (vertex_buffer, normals_buffer, index_buffer) =
+        let (vertex_buffer, index_buffer) =
             create_buffers(&memory_allocator, object)?;
 
         let rcx = None;
@@ -59,7 +58,6 @@ impl App {
             command_buffer_allocator,
             uniform_buffer_allocator,
             vertex_buffer,
-            normals_buffer,
             index_buffer,
             rcx,
         })
@@ -203,7 +201,7 @@ fn create_device(
 fn create_buffers(
     memory_allocator: &Arc<StandardMemoryAllocator>,
     object: &Object,
-) -> Result<(Subbuffer<[Position]>, Subbuffer<[Normal]>, Subbuffer<[u16]>)> {
+) -> Result<(Subbuffer<[Position]>, Subbuffer<[u16]>)> {
     let vertex_buffer = Buffer::from_iter(
         memory_allocator.clone(),
         BufferCreateInfo {
@@ -215,22 +213,22 @@ fn create_buffers(
                 | MemoryTypeFilter::HOST_SEQUENTIAL_WRITE,
             ..Default::default()
         },
-        POSITIONS
+        object.vertex.clone()
     )?;
 
-    let normals_buffer = Buffer::from_iter(
-        memory_allocator.clone(),
-        BufferCreateInfo {
-            usage: BufferUsage::VERTEX_BUFFER,
-            ..Default::default()
-        },
-        AllocationCreateInfo {
-            memory_type_filter: MemoryTypeFilter::PREFER_DEVICE
-                | MemoryTypeFilter::HOST_SEQUENTIAL_WRITE,
-            ..Default::default()
-        },
-        NORMALS
-    )?;
+    // let normals_buffer = Buffer::from_iter(
+    //     memory_allocator.clone(),
+    //     BufferCreateInfo {
+    //         usage: BufferUsage::VERTEX_BUFFER,
+    //         ..Default::default()
+    //     },
+    //     AllocationCreateInfo {
+    //         memory_type_filter: MemoryTypeFilter::PREFER_DEVICE
+    //             | MemoryTypeFilter::HOST_SEQUENTIAL_WRITE,
+    //         ..Default::default()
+    //     },
+    //     NORMALS
+    // )?;
 
     let index_buffer = Buffer::from_iter(
         memory_allocator.clone(),
@@ -243,8 +241,8 @@ fn create_buffers(
                 | MemoryTypeFilter::HOST_SEQUENTIAL_WRITE,
             ..Default::default()
         },
-        INDICES
+        object.indice.clone()
     )?;
 
-    Ok((vertex_buffer, normals_buffer, index_buffer))
+    Ok((vertex_buffer, index_buffer))
 }

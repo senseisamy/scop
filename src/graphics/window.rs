@@ -1,6 +1,5 @@
-use crate::{math::Mat4, object_loader::{Normal, Position}};
-
-use super::{App, RenderContext};
+use crate::{math::{Mat4, Vec3}, object_loader::{Normal, Position}};
+use super::{App, Camera, RenderContext, View};
 use std::sync::Arc;
 use vulkano::{
     command_buffer::{AutoCommandBufferBuilder, CommandBufferUsage, RenderPassBeginInfo},
@@ -33,6 +32,8 @@ use vulkano::{
 use winit::{
     application::ApplicationHandler, dpi::PhysicalSize, event::{ElementState, WindowEvent}, event_loop::ActiveEventLoop, keyboard::Key, platform::modifier_supplement::KeyEventExtModifierSupplement, window::{Window, WindowId}
 };
+
+const CAMERA_SPEED: f32 = 0.1;
 
 impl ApplicationHandler for App {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
@@ -78,7 +79,13 @@ impl ApplicationHandler for App {
             pipeline,
             recreate_swapchain,
             previous_frame_end,
-            rotation: Mat4::identity()
+            world: View {
+                world_transformation: Mat4::identity(),
+                camera: Camera {
+                    position: Vec3{x: 0.0, y: 0.0, z: 10.0},
+                    direction: Vec3{x: 0.0, y: 0.0, z: 1.0},
+                }
+            }
         })
     }
 
@@ -129,6 +136,8 @@ impl ApplicationHandler for App {
                     let aspect_ratio = rcx.swapchain.image_extent()[0] as f32
                         / rcx.swapchain.image_extent()[1] as f32;
 
+                    let world = &rcx.world;
+
                     let proj = Mat4::perspective(
                         std::f32::consts::FRAC_PI_2,
                         aspect_ratio,
@@ -136,22 +145,22 @@ impl ApplicationHandler for App {
                         100.0
                     );
                     //println!("projection matrix:\n {proj:?}\n");
-                    let view = Mat4::identity();
+                    //let view = Mat4::identity();
                     //let view = Mat4([[-0.9578263, 0.079357564, 0.2761724, 0.0], [0.0, -0.96110815, 0.2761724, 0.0], [0.2873479, 0.2645252, 0.9205746, 0.0], [-0.0, -0.0, -1.0862781, 1.0]]);
                     //let scale = Mat4::from_scale(Vec3::splat(0.01));
                     let scale = Mat4::scale(0.01, 0.01, 0.01);
                     //println!("scale matrix:\n {scale:?}\n");
 
                     let uniform_data = vs::Data {
-                        world: rcx.rotation.0,
-                        view: (view * scale).0,
+                        world: world.world_transformation.0,
+                        view: (world.camera.view_matrix() * scale).0,
                         proj: proj.0,
                     };
 
                     // println!("world: {:?}\nview: {:?}\nproj: {:?}", uniform_data.world, uniform_data.view, uniform_data.proj);
 
                     // std::process::exit(0);
-
+ 
                     let buffer = self.uniform_buffer_allocator.allocate_sized().unwrap();
                     *buffer.write().unwrap() = uniform_data;
 
@@ -215,10 +224,7 @@ impl ApplicationHandler for App {
                         descriptor_set,
                     )
                     .unwrap()
-                    .bind_vertex_buffers(
-                        0, 
-                        (self.vertex_buffer.clone(), self.normals_buffer.clone())
-                    )
+                    .bind_vertex_buffers(0, self.vertex_buffer.clone())
                     .unwrap()
                     .bind_index_buffer(self.index_buffer.clone())
                     .unwrap();
@@ -260,16 +266,38 @@ impl ApplicationHandler for App {
             },
             WindowEvent::KeyboardInput { event, .. } => {
                 if event.state == ElementState::Pressed {
-                    let rcx = self.rcx.as_mut().unwrap();
+                    let world = &mut self.rcx.as_mut().unwrap().world;
                     match event.key_without_modifiers().as_ref() {
                         Key::Character("o") => {
-                            rcx.rotation = rcx.rotation * Mat4::rotate_y(std::f32::consts::PI / 60.0);
+                            world.world_transformation = world.world_transformation * Mat4::rotate_y(std::f32::consts::PI / 60.0);
                         },
                         Key::Character("p") => {
-                            rcx.rotation = rcx.rotation * Mat4::rotate_y(-std::f32::consts::PI / 60.0);
+                            world.world_transformation = world.world_transformation * Mat4::rotate_y(-std::f32::consts::PI / 60.0);
                         },
+                        Key::Character("w") => {
+                            world.camera.position.z -= CAMERA_SPEED;
+                        },
+                        Key::Character("s") => {
+                            world.camera.position.z += CAMERA_SPEED;
+                        },
+                        Key::Character("a") => {
+                            world.camera.position.x += CAMERA_SPEED;
+                        },
+                        Key::Character("d") => {
+                            world.camera.position.x -= CAMERA_SPEED;
+                        },
+                        Key::Named(winit::keyboard::NamedKey::Space) => {
+                            world.camera.position.y += CAMERA_SPEED;
+                        },
+                        Key::Named(winit::keyboard::NamedKey::Shift) => {
+                            world.camera.position.y -= CAMERA_SPEED;
+                        },
+                        Key::Named(winit::keyboard::NamedKey::Escape) => {
+                            event_loop.exit();
+                        }
                         _ => {}
                     }
+                    //println!("position: {} {} {}", world.camera.position.x, world.camera.position.y, world.camera.position.z);
                 }
             }
             _ => {}
@@ -329,7 +357,7 @@ fn window_size_dependent_setup(
     // driver to optimize things, at the cost of slower window resizes.
     // https://computergraphics.stackexchange.com/questions/5742/vulkan-best-way-of-updating-pipeline-viewport
     let pipeline = {
-        let vertex_input_state = [Position::per_vertex(), Normal::per_vertex()]
+        let vertex_input_state = Position::per_vertex()
             .definition(vs)
             .unwrap();
         let stages = [
@@ -385,13 +413,13 @@ fn window_size_dependent_setup(
 mod vs {
     vulkano_shaders::shader! {
         ty: "vertex",
-        path: "src/shaders/vertex.glsl"
+        path: "src/shaders/vertex_no_normal.glsl"
     }
 }
 
 mod fs {
     vulkano_shaders::shader! {
         ty: "fragment",
-        path: "src/shaders/fragment.glsl"
+        path: "src/shaders/fragment_no_normal.glsl"
     }
 }
