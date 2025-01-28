@@ -42,7 +42,7 @@ pub struct RenderContext {
     pipeline: Arc<GraphicsPipeline>,
     recreate_swapchain: bool,
     previous_frame_end: Option<Box<dyn GpuFuture>>,
-    world: View
+    world: View,
 }
 
 pub struct View {

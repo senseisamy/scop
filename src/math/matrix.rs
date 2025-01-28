@@ -1,6 +1,6 @@
 use std::{
     f32::consts::PI,
-    ops::{Add, Index, IndexMut, Mul},
+    ops::{Add, Index, IndexMut, Mul, MulAssign},
 };
 
 #[derive(Debug, Clone, Copy, Default)]
@@ -68,6 +68,12 @@ impl Mul for Mat4 {
         }
 
         m
+    }
+}
+
+impl MulAssign for Mat4 {
+    fn mul_assign(&mut self, rhs: Self) {
+        *self = *self * rhs;
     }
 }
 

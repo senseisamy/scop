@@ -1,6 +1,6 @@
 use crate::{math::{Mat4, Vec3}, object_loader::{Normal, Position}};
 use super::{App, Camera, RenderContext, View};
-use std::sync::Arc;
+use std::{sync::Arc, time::Instant};
 use vulkano::{
     command_buffer::{AutoCommandBufferBuilder, CommandBufferUsage, RenderPassBeginInfo},
     descriptor_set::{DescriptorSet, WriteDescriptorSet},
@@ -33,7 +33,7 @@ use winit::{
     application::ApplicationHandler, dpi::PhysicalSize, event::{ElementState, WindowEvent}, event_loop::ActiveEventLoop, keyboard::{Key, NamedKey}, platform::modifier_supplement::KeyEventExtModifierSupplement, window::{Window, WindowId}
 };
 
-const CAMERA_SPEED: f32 = 0.1;
+const CAMERA_SPEED: f32 = 0.2;
 
 impl ApplicationHandler for App {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
@@ -266,25 +266,28 @@ impl ApplicationHandler for App {
             },
             WindowEvent::KeyboardInput { event, .. } => {
                 if event.state == ElementState::Pressed {
-                    let world = &mut self.rcx.as_mut().unwrap().world;
+                    let world = &mut rcx.world;
                     match event.key_without_modifiers().as_ref() {
+                        // rotate world around y axis
                         Key::Character("o") => {
-                            world.world_transformation = world.world_transformation * Mat4::rotate_y(std::f32::consts::PI / 60.0);
+                            world.world_transformation *= Mat4::rotate_y(std::f32::consts::PI / 60.0);
                         }
                         Key::Character("p") => {
-                            world.world_transformation = world.world_transformation * Mat4::rotate_y(-std::f32::consts::PI / 60.0);
+                            world.world_transformation *= Mat4::rotate_y(-std::f32::consts::PI / 60.0);
                         }
+
+                        // move camera position following the camera direction
                         Key::Character("w") => {
-                            world.camera.position.z -= CAMERA_SPEED;
+                            world.camera.position += world.camera.direction * -CAMERA_SPEED;
                         }
                         Key::Character("s") => {
-                            world.camera.position.z += CAMERA_SPEED;
+                            world.camera.position += world.camera.direction * CAMERA_SPEED;
                         }
                         Key::Character("a") => {
-                            world.camera.position.x += CAMERA_SPEED;
+                            world.camera.position += Vec3::cross(&world.camera.direction, &Vec3{x: 0.0, y: -1.0, z: 0.0}) * CAMERA_SPEED;
                         }
                         Key::Character("d") => {
-                            world.camera.position.x -= CAMERA_SPEED;
+                            world.camera.position += Vec3::cross(&world.camera.direction, &Vec3{x: 0.0, y: -1.0, z: 0.0}) * -CAMERA_SPEED;
                         }
                         Key::Named(NamedKey::Space) => {
                             world.camera.position.y += CAMERA_SPEED;
@@ -292,18 +295,29 @@ impl ApplicationHandler for App {
                         Key::Named(NamedKey::Shift) => {
                             world.camera.position.y -= CAMERA_SPEED;
                         }
+
+                        // move camera direction around y and x axis
                         Key::Named(NamedKey::ArrowRight) => {
-                            world.camera.direction = world.camera.direction * Mat4::rotate_y(std::f32::consts::PI / 60.0);
+                            world.camera.direction = world.camera.direction * Mat4::rotate_y(std::f32::consts::PI / 120.0);
                         }
                         Key::Named(NamedKey::ArrowLeft) => {
-                            world.camera.direction = world.camera.direction * Mat4::rotate_y(-std::f32::consts::PI / 60.0);
+                            world.camera.direction = world.camera.direction * Mat4::rotate_y(-std::f32::consts::PI / 120.0);
                         }
+                        Key::Named(NamedKey::ArrowUp) => {
+                            world.camera.direction = world.camera.direction * Mat4::rotate_x(std::f32::consts::PI / 120.0);
+                        }
+                        Key::Named(NamedKey::ArrowDown) => {
+                            world.camera.direction = world.camera.direction * Mat4::rotate_x(-std::f32::consts::PI / 120.0);
+                        }
+
+                        // exit program
                         Key::Named(NamedKey::Escape) => {
                             event_loop.exit();
                         }
                         _ => {}
                     }
-                    //println!("position: {} {} {}", world.camera.position.x, world.camera.position.y, world.camera.position.z);
+                    // println!("position: {} {} {}", world.camera.position.x, world.camera.position.y, world.camera.position.z);
+                    // println!("direction: {} {} {}\n", world.camera.direction.x, world.camera.direction.y, world.camera.direction.z);
                 }
             }
             _ => {}
