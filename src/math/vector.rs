@@ -113,4 +113,8 @@ impl Vec3 {
     pub fn dot(a: &Vec3, b: &Vec3) -> f32 {
         a.x * b.x + a.y * b.y + a.z * b.z
     }
+
+    pub fn to_array(&self) -> [f32; 3] {
+        [self.x, self.y, self.z]
+    }
 }

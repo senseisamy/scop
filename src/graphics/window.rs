@@ -32,6 +32,7 @@ use vulkano::{
 use winit::{
     application::ApplicationHandler, dpi::PhysicalSize, event::{ElementState, WindowEvent}, event_loop::ActiveEventLoop, keyboard::{Key, NamedKey}, platform::modifier_supplement::KeyEventExtModifierSupplement, window::{Window, WindowId}
 };
+use crate::{OBJ_COLOR, BG_COLOR};
 
 const CAMERA_SPEED: f32 = 0.2;
 
@@ -155,6 +156,11 @@ impl ApplicationHandler for App {
                         world: world.world_transformation.0,
                         view: (world.camera.view_matrix() * scale).0,
                         proj: proj.0,
+                        color: Vec3{
+                            x: OBJ_COLOR.0 as f32 / 255.0,
+                            y: OBJ_COLOR.1 as f32 / 255.0,
+                            z: OBJ_COLOR.2 as f32 / 255.0
+                        }.to_array()
                     };
 
                     // println!("world: {:?}\nview: {:?}\nproj: {:?}", uniform_data.world, uniform_data.view, uniform_data.proj);
@@ -205,7 +211,12 @@ impl ApplicationHandler for App {
                     .begin_render_pass(
                         RenderPassBeginInfo {
                             clear_values: vec![
-                                Some([234.0 / 255.0, 242.0 / 255.0, 227.0 / 255.0, 1.0].into()),
+                                Some([
+                                    BG_COLOR.0 as f32 / 255.0,
+                                    BG_COLOR.1 as f32 / 255.0,
+                                    BG_COLOR.2 as f32 / 255.0,
+                                    1.0
+                                ].into()),
                                 Some(1f32.into()),
                             ],
                             ..RenderPassBeginInfo::framebuffer(

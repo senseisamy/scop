@@ -10,6 +10,9 @@ use std::fs;
 use std::str::FromStr;
 use winit::event_loop::EventLoop;
 
+const OBJ_COLOR: (u8, u8, u8) = (56, 38, 51);
+const BG_COLOR: (u8, u8, u8) = (146, 189, 163);
+
 fn main() -> Result<()> {
     let args: Vec<String> = env::args().collect();
     if args.len() != 2 {
