@@ -1,6 +1,6 @@
-use crate::{math::{Mat4, Vec3}, object_loader::{Normal, Position}};
+use crate::{math::{Mat4, Vec3}, object_loader::Position};
 use super::{App, Camera, RenderContext, View};
-use std::{sync::Arc, time::Instant};
+use std::sync::Arc;
 use vulkano::{
     command_buffer::{AutoCommandBufferBuilder, CommandBufferUsage, RenderPassBeginInfo},
     descriptor_set::{DescriptorSet, WriteDescriptorSet},

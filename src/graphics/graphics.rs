@@ -1,5 +1,5 @@
 use super::App;
-use crate::object_loader::{Normal, Object, Position};
+use crate::object_loader::{Object, Position};
 use anyhow::{Context, Result};
 use std::sync::Arc;
 use vulkano::{

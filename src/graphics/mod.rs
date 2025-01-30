@@ -2,7 +2,7 @@ pub mod graphics;
 pub mod window;
 pub mod view;
 
-use crate::{math::{Mat4, Vec3}, object_loader::{Normal, Position}};
+use crate::{math::{Mat4, Vec3}, object_loader::Position};
 use std::sync::Arc;
 use vulkano::{
     buffer::{allocator::SubbufferAllocator, Subbuffer},

@@ -1,7 +1,4 @@
-use std::{
-    f32::consts::PI,
-    ops::{Add, Index, IndexMut, Mul, MulAssign},
-};
+use std::ops::{Add, Index, IndexMut, Mul, MulAssign};
 
 #[derive(Debug, Clone, Copy, Default)]
 pub struct Mat4(pub [[f32; 4]; 4]);
@@ -77,6 +74,7 @@ impl MulAssign for Mat4 {
     }
 }
 
+#[allow(dead_code)]
 impl Mat4 {
     pub fn identity() -> Self {
         Self([

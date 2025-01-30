@@ -20,6 +20,7 @@ pub struct Object {
     pub indice: Vec<u16>,
 }
 
+#[allow(dead_code)]
 pub enum Face {
     Point(u16),
     Line(u16, u16),
