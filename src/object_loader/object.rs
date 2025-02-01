@@ -73,7 +73,7 @@ impl Object {
                         let (v4, _, _) = parse_face_el(line[4], &v, &vt, &vn)?;
 
                         handle_face(v1, v2, v3, &mut obj, &mut unique_vertices, has_normal);
-                        handle_face(v2, v3, v4, &mut obj, &mut unique_vertices, has_normal);
+                        handle_face(v1, v3, v4, &mut obj, &mut unique_vertices, has_normal);
                     } else {
                         return Err(anyhow!("line {line_number}: expected (a, b, c [, d]) format"));
                     }
