@@ -1,10 +1,10 @@
-use super::{App, Camera, RenderContext, View};
+use super::{input::InputState, App, Camera, RenderContext, View};
 use crate::{
     math::{Mat4, Vec3},
     object_loader::Vertexxx,
 };
 use crate::{BG_COLOR, OBJ_COLOR};
-use std::sync::Arc;
+use std::{sync::Arc, time::Instant};
 use vulkano::{
     command_buffer::{AutoCommandBufferBuilder, CommandBufferUsage, RenderPassBeginInfo},
     descriptor_set::{DescriptorSet, WriteDescriptorSet},
@@ -36,14 +36,10 @@ use vulkano::{
 use winit::{
     application::ApplicationHandler,
     dpi::PhysicalSize,
-    event::{ElementState, WindowEvent},
+    event::WindowEvent,
     event_loop::ActiveEventLoop,
-    keyboard::{Key, NamedKey},
-    platform::modifier_supplement::KeyEventExtModifierSupplement,
     window::{Window, WindowId},
 };
-
-const CAMERA_SPEED: f32 = 0.2;
 
 impl ApplicationHandler for App {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
@@ -92,18 +88,16 @@ impl ApplicationHandler for App {
             world: View {
                 world_transformation: Mat4::identity(),
                 camera: Camera {
-                    position: Vec3 {
-                        x: 0.0,
-                        y: 0.0,
-                        z: 10.0,
-                    },
-                    direction: Vec3 {
-                        x: 0.0,
-                        y: 0.0,
-                        z: 1.0,
-                    },
+                    position: Vec3::from(&[0.0, 0.0, 10.0]),
+                    direction: Vec3::from(&[0.0, 0.0, 1.0]),
                 },
             },
+            input_state: InputState::new(),
+            time: Instant::now(),
+            dt: 0.0,
+            dt_sum: 0.0,
+            frame_count: 0.0,
+            avg_fps: 0.0,
         })
     }
 
@@ -125,6 +119,7 @@ impl ApplicationHandler for App {
                     return;
                 }
 
+                rcx.update_state_after_inputs();
                 rcx.previous_frame_end.as_mut().unwrap().cleanup_finished();
 
                 if rcx.recreate_swapchain {
@@ -149,21 +144,14 @@ impl ApplicationHandler for App {
                 }
 
                 let uniform_buffer = {
-                    // NOTE: This teapot was meant for OpenGL where the origin is at the lower left
-                    // instead the origin is at the upper left in Vulkan, so we reverse the Y axis.
                     let aspect_ratio = rcx.swapchain.image_extent()[0] as f32
                         / rcx.swapchain.image_extent()[1] as f32;
 
                     let world = &rcx.world;
 
-                    let proj =
-                        Mat4::perspective(std::f32::consts::FRAC_PI_2, aspect_ratio, 0.01, 100.0);
-                    //println!("projection matrix:\n {proj:?}\n");
-                    //let view = Mat4::identity();
-                    //let view = Mat4([[-0.9578263, 0.079357564, 0.2761724, 0.0], [0.0, -0.96110815, 0.2761724, 0.0], [0.2873479, 0.2645252, 0.9205746, 0.0], [-0.0, -0.0, -1.0862781, 1.0]]);
-                    //let scale = Mat4::from_scale(Vec3::splat(0.01));
+                    let proj = Mat4::perspective(std::f32::consts::FRAC_PI_2, aspect_ratio, 0.01, 100.0);
+
                     let scale = Mat4::scale(0.01, 0.01, 0.01);
-                    //println!("scale matrix:\n {scale:?}\n");
 
                     let uniform_data = vs::Data {
                         world: world.world_transformation.0,
@@ -176,10 +164,6 @@ impl ApplicationHandler for App {
                         }
                         .to_array(),
                     };
-
-                    // println!("world: {:?}\nview: {:?}\nproj: {:?}", uniform_data.world, uniform_data.view, uniform_data.proj);
-
-                    // std::process::exit(0);
 
                     let buffer = self.uniform_buffer_allocator.allocate_sized().unwrap();
                     *buffer.write().unwrap() = uniform_data;
@@ -291,84 +275,20 @@ impl ApplicationHandler for App {
                         rcx.previous_frame_end = Some(sync::now(self.device.clone()).boxed());
                     }
                 }
+
+                rcx.update_time();
+                rcx.window.set_title(&format!(
+                    "Scop! fps: {:.2}",
+                    rcx.avg_fps()
+                ));
             }
-            WindowEvent::KeyboardInput { event, .. } => {
-                if event.state == ElementState::Pressed {
-                    let world = &mut rcx.world;
-                    match event.key_without_modifiers().as_ref() {
-                        // rotate world around y axis
-                        Key::Character("o") => {
-                            world.world_transformation *=
-                                Mat4::rotate_y(std::f32::consts::PI / 60.0);
-                        }
-                        Key::Character("p") => {
-                            world.world_transformation *=
-                                Mat4::rotate_y(-std::f32::consts::PI / 60.0);
-                        }
-
-                        // move camera position following the camera direction
-                        Key::Character("w") => {
-                            world.camera.position += world.camera.direction * -CAMERA_SPEED;
-                        }
-                        Key::Character("s") => {
-                            world.camera.position += world.camera.direction * CAMERA_SPEED;
-                        }
-                        Key::Character("a") => {
-                            world.camera.position += Vec3::cross(
-                                &world.camera.direction,
-                                &Vec3 {
-                                    x: 0.0,
-                                    y: -1.0,
-                                    z: 0.0,
-                                },
-                            ) * CAMERA_SPEED;
-                        }
-                        Key::Character("d") => {
-                            world.camera.position += Vec3::cross(
-                                &world.camera.direction,
-                                &Vec3 {
-                                    x: 0.0,
-                                    y: -1.0,
-                                    z: 0.0,
-                                },
-                            ) * -CAMERA_SPEED;
-                        }
-                        Key::Named(NamedKey::Space) => {
-                            world.camera.position.y += CAMERA_SPEED;
-                        }
-                        Key::Named(NamedKey::Shift) => {
-                            world.camera.position.y -= CAMERA_SPEED;
-                        }
-
-                        // move camera direction around y and x axis
-                        Key::Named(NamedKey::ArrowRight) => {
-                            world.camera.direction = world.camera.direction
-                                * Mat4::rotate_y(std::f32::consts::PI / 120.0);
-                        }
-                        Key::Named(NamedKey::ArrowLeft) => {
-                            world.camera.direction = world.camera.direction
-                                * Mat4::rotate_y(-std::f32::consts::PI / 120.0);
-                        }
-                        Key::Named(NamedKey::ArrowUp) => {
-                            world.camera.direction = world.camera.direction
-                                * Mat4::rotate_x(std::f32::consts::PI / 120.0);
-                        }
-                        Key::Named(NamedKey::ArrowDown) => {
-                            world.camera.direction = world.camera.direction
-                                * Mat4::rotate_x(-std::f32::consts::PI / 120.0);
-                        }
-
-                        // exit program
-                        Key::Named(NamedKey::Escape) => {
-                            event_loop.exit();
-                        }
-                        _ => {}
-                    }
-                    // println!("position: {} {} {}", world.camera.position.x, world.camera.position.y, world.camera.position.z);
-                    // println!("direction: {} {} {}\n", world.camera.direction.x, world.camera.direction.y, world.camera.direction.z);
-                }
+            _ => {
+                rcx.input_state.handle_input(rcx.window.inner_size(), &event);
             }
-            _ => {}
+        }
+
+        if rcx.input_state.should_quit {
+            event_loop.exit();
         }
     }
 

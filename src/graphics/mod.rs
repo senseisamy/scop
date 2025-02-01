@@ -1,12 +1,14 @@
 pub mod graphics;
 pub mod view;
 pub mod window;
+pub mod input;
 
 use crate::{
     math::{Mat4, Vec3},
     object_loader::Vertexxx,
 };
-use std::sync::Arc;
+use std::{sync::Arc, time::Instant};
+use input::InputState;
 use vulkano::{
     buffer::{allocator::SubbufferAllocator, Subbuffer},
     command_buffer::allocator::StandardCommandBufferAllocator,
@@ -46,6 +48,12 @@ pub struct RenderContext {
     recreate_swapchain: bool,
     previous_frame_end: Option<Box<dyn GpuFuture>>,
     world: View,
+    input_state: InputState,
+    time: Instant,
+    dt: f32,
+    dt_sum: f32,
+    frame_count: f32,
+    avg_fps: f32,
 }
 
 pub struct View {
