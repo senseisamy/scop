@@ -1,4 +1,4 @@
-use std::ops::{Add, AddAssign, Index, IndexMut, Mul};
+use std::ops::{Add, AddAssign, Index, IndexMut, Mul, Sub};
 
 use super::Mat4;
 
@@ -6,7 +6,7 @@ use super::Mat4;
 pub struct Vec3 {
     pub x: f32,
     pub y: f32,
-    pub z: f32
+    pub z: f32,
 }
 
 impl Index<usize> for Vec3 {
@@ -17,7 +17,7 @@ impl Index<usize> for Vec3 {
             0 => &self.x,
             1 => &self.y,
             2 => &self.z,
-            _ => panic!("vector index out of bound")
+            _ => panic!("vector index out of bound"),
         }
     }
 }
@@ -28,7 +28,7 @@ impl IndexMut<usize> for Vec3 {
             0 => &mut self.x,
             1 => &mut self.y,
             2 => &mut self.z,
-            _ => panic!("vector index out of bound")
+            _ => panic!("vector index out of bound"),
         }
     }
 }
@@ -40,7 +40,7 @@ impl Add for Vec3 {
         Self {
             x: self.x + rhs.x,
             y: self.y + rhs.y,
-            z: self.z + rhs.z
+            z: self.z + rhs.z,
         }
     }
 }
@@ -48,6 +48,18 @@ impl Add for Vec3 {
 impl AddAssign for Vec3 {
     fn add_assign(&mut self, rhs: Self) {
         *self = *self + rhs;
+    }
+}
+
+impl Sub for Vec3 {
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        Self {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
+        }
     }
 }
 
@@ -70,7 +82,7 @@ impl Mul<f32> for Vec3 {
         Self {
             x: self.x * rhs,
             y: self.y * rhs,
-            z: self.z * rhs
+            z: self.z * rhs,
         }
     }
 }
@@ -82,11 +94,10 @@ impl Mul<Mat4> for Vec3 {
         Self {
             x: self.x * rhs[0][0] + self.y * rhs[0][1] + self.z * rhs[0][2],
             y: self.x * rhs[1][0] + self.y * rhs[1][1] + self.z * rhs[1][2],
-            z: self.x * rhs[2][0] + self.y * rhs[2][1] + self.z * rhs[2][2]
+            z: self.x * rhs[2][0] + self.y * rhs[2][1] + self.z * rhs[2][2],
         }
     }
 }
-
 
 impl Vec3 {
     pub fn length(&self) -> f32 {
@@ -98,15 +109,15 @@ impl Vec3 {
         return Self {
             x: self.x / length,
             y: self.y / length,
-            z: self.z / length
-        }
+            z: self.z / length,
+        };
     }
 
     pub fn cross(a: &Vec3, b: &Vec3) -> Self {
         Self {
             x: a.y * b.z - a.z * b.y,
             y: a.z * b.x - a.x * b.z,
-            z: a.x * b.y - a.y * b.x
+            z: a.x * b.y - a.y * b.x,
         }
     }
 
@@ -116,5 +127,13 @@ impl Vec3 {
 
     pub fn to_array(&self) -> [f32; 3] {
         [self.x, self.y, self.z]
+    }
+
+    pub fn from(array: &[f32; 3]) -> Self {
+        Self {
+            x: array[0],
+            y: array[1],
+            z: array[2],
+        }
     }
 }

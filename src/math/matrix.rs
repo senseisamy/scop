@@ -140,11 +140,11 @@ impl Mat4 {
         let b = (z_near + z_far) * inv_length;
         let c = (2.0 * z_near * z_far) * inv_length;
 
-        Self ([
+        Self([
             [a, 0.0, 0.0, 0.0],
             [0.0, f, 0.0, 0.0],
             [0.0, 0.0, b, -1.0],
-            [0.0, 0.0, c, 0.0]
+            [0.0, 0.0, c, 0.0],
         ])
     }
 }

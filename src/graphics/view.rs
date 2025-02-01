@@ -1,10 +1,18 @@
-use crate::math::{Mat4, Vec3};
 use super::Camera;
+use crate::math::{Mat4, Vec3};
 
 impl Camera {
     pub fn view_matrix(&self) -> Mat4 {
         let w = self.direction.normalize();
-        let u = Vec3::cross(&w, &Vec3{x: 0.0, y: 1.0, z: 0.0}).normalize();
+        let u = Vec3::cross(
+            &w,
+            &Vec3 {
+                x: 0.0,
+                y: 1.0,
+                z: 0.0,
+            },
+        )
+        .normalize();
         let v = Vec3::cross(&w, &u);
 
         let mut view_matrix = Mat4::identity();

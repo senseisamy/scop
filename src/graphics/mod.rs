@@ -1,8 +1,11 @@
 pub mod graphics;
-pub mod window;
 pub mod view;
+pub mod window;
 
-use crate::{math::{Mat4, Vec3}, object_loader::Position};
+use crate::{
+    math::{Mat4, Vec3},
+    object_loader::Vertexxx,
+};
 use std::sync::Arc;
 use vulkano::{
     buffer::{allocator::SubbufferAllocator, Subbuffer},
@@ -27,7 +30,7 @@ pub struct App {
     pub descriptor_set_allocator: Arc<StandardDescriptorSetAllocator>,
     pub command_buffer_allocator: Arc<StandardCommandBufferAllocator>,
     pub uniform_buffer_allocator: SubbufferAllocator,
-    pub vertex_buffer: Subbuffer<[Position]>,
+    pub vertex_buffer: Subbuffer<[Vertexxx]>,
     pub index_buffer: Subbuffer<[u16]>,
     pub rcx: Option<RenderContext>,
 }
@@ -47,7 +50,7 @@ pub struct RenderContext {
 
 pub struct View {
     world_transformation: Mat4,
-    camera: Camera
+    camera: Camera,
 }
 
 pub struct Camera {

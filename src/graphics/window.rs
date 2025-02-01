@@ -1,5 +1,9 @@
-use crate::{math::{Mat4, Vec3}, object_loader::Position};
 use super::{App, Camera, RenderContext, View};
+use crate::{
+    math::{Mat4, Vec3},
+    object_loader::Vertexxx,
+};
+use crate::{BG_COLOR, OBJ_COLOR};
 use std::sync::Arc;
 use vulkano::{
     command_buffer::{AutoCommandBufferBuilder, CommandBufferUsage, RenderPassBeginInfo},
@@ -30,9 +34,14 @@ use vulkano::{
     Validated, VulkanError,
 };
 use winit::{
-    application::ApplicationHandler, dpi::PhysicalSize, event::{ElementState, WindowEvent}, event_loop::ActiveEventLoop, keyboard::{Key, NamedKey}, platform::modifier_supplement::KeyEventExtModifierSupplement, window::{Window, WindowId}
+    application::ApplicationHandler,
+    dpi::PhysicalSize,
+    event::{ElementState, WindowEvent},
+    event_loop::ActiveEventLoop,
+    keyboard::{Key, NamedKey},
+    platform::modifier_supplement::KeyEventExtModifierSupplement,
+    window::{Window, WindowId},
 };
-use crate::{OBJ_COLOR, BG_COLOR};
 
 const CAMERA_SPEED: f32 = 0.2;
 
@@ -83,10 +92,18 @@ impl ApplicationHandler for App {
             world: View {
                 world_transformation: Mat4::identity(),
                 camera: Camera {
-                    position: Vec3{x: 0.0, y: 0.0, z: 10.0},
-                    direction: Vec3{x: 0.0, y: 0.0, z: 1.0},
-                }
-            }
+                    position: Vec3 {
+                        x: 0.0,
+                        y: 0.0,
+                        z: 10.0,
+                    },
+                    direction: Vec3 {
+                        x: 0.0,
+                        y: 0.0,
+                        z: 1.0,
+                    },
+                },
+            },
         })
     }
 
@@ -139,12 +156,8 @@ impl ApplicationHandler for App {
 
                     let world = &rcx.world;
 
-                    let proj = Mat4::perspective(
-                        std::f32::consts::FRAC_PI_2,
-                        aspect_ratio,
-                        0.01,
-                        100.0
-                    );
+                    let proj =
+                        Mat4::perspective(std::f32::consts::FRAC_PI_2, aspect_ratio, 0.01, 100.0);
                     //println!("projection matrix:\n {proj:?}\n");
                     //let view = Mat4::identity();
                     //let view = Mat4([[-0.9578263, 0.079357564, 0.2761724, 0.0], [0.0, -0.96110815, 0.2761724, 0.0], [0.2873479, 0.2645252, 0.9205746, 0.0], [-0.0, -0.0, -1.0862781, 1.0]]);
@@ -156,17 +169,18 @@ impl ApplicationHandler for App {
                         world: world.world_transformation.0,
                         view: (world.camera.view_matrix() * scale).0,
                         proj: proj.0,
-                        color: Vec3{
+                        color: Vec3 {
                             x: OBJ_COLOR.0 as f32 / 255.0,
                             y: OBJ_COLOR.1 as f32 / 255.0,
-                            z: OBJ_COLOR.2 as f32 / 255.0
-                        }.to_array()
+                            z: OBJ_COLOR.2 as f32 / 255.0,
+                        }
+                        .to_array(),
                     };
 
                     // println!("world: {:?}\nview: {:?}\nproj: {:?}", uniform_data.world, uniform_data.view, uniform_data.proj);
 
                     // std::process::exit(0);
- 
+
                     let buffer = self.uniform_buffer_allocator.allocate_sized().unwrap();
                     *buffer.write().unwrap() = uniform_data;
 
@@ -211,12 +225,15 @@ impl ApplicationHandler for App {
                     .begin_render_pass(
                         RenderPassBeginInfo {
                             clear_values: vec![
-                                Some([
-                                    BG_COLOR.0 as f32 / 255.0,
-                                    BG_COLOR.1 as f32 / 255.0,
-                                    BG_COLOR.2 as f32 / 255.0,
-                                    1.0
-                                ].into()),
+                                Some(
+                                    [
+                                        BG_COLOR.0 as f32 / 255.0,
+                                        BG_COLOR.1 as f32 / 255.0,
+                                        BG_COLOR.2 as f32 / 255.0,
+                                        1.0,
+                                    ]
+                                    .into(),
+                                ),
                                 Some(1f32.into()),
                             ],
                             ..RenderPassBeginInfo::framebuffer(
@@ -274,17 +291,19 @@ impl ApplicationHandler for App {
                         rcx.previous_frame_end = Some(sync::now(self.device.clone()).boxed());
                     }
                 }
-            },
+            }
             WindowEvent::KeyboardInput { event, .. } => {
                 if event.state == ElementState::Pressed {
                     let world = &mut rcx.world;
                     match event.key_without_modifiers().as_ref() {
                         // rotate world around y axis
                         Key::Character("o") => {
-                            world.world_transformation *= Mat4::rotate_y(std::f32::consts::PI / 60.0);
+                            world.world_transformation *=
+                                Mat4::rotate_y(std::f32::consts::PI / 60.0);
                         }
                         Key::Character("p") => {
-                            world.world_transformation *= Mat4::rotate_y(-std::f32::consts::PI / 60.0);
+                            world.world_transformation *=
+                                Mat4::rotate_y(-std::f32::consts::PI / 60.0);
                         }
 
                         // move camera position following the camera direction
@@ -295,10 +314,24 @@ impl ApplicationHandler for App {
                             world.camera.position += world.camera.direction * CAMERA_SPEED;
                         }
                         Key::Character("a") => {
-                            world.camera.position += Vec3::cross(&world.camera.direction, &Vec3{x: 0.0, y: -1.0, z: 0.0}) * CAMERA_SPEED;
+                            world.camera.position += Vec3::cross(
+                                &world.camera.direction,
+                                &Vec3 {
+                                    x: 0.0,
+                                    y: -1.0,
+                                    z: 0.0,
+                                },
+                            ) * CAMERA_SPEED;
                         }
                         Key::Character("d") => {
-                            world.camera.position += Vec3::cross(&world.camera.direction, &Vec3{x: 0.0, y: -1.0, z: 0.0}) * -CAMERA_SPEED;
+                            world.camera.position += Vec3::cross(
+                                &world.camera.direction,
+                                &Vec3 {
+                                    x: 0.0,
+                                    y: -1.0,
+                                    z: 0.0,
+                                },
+                            ) * -CAMERA_SPEED;
                         }
                         Key::Named(NamedKey::Space) => {
                             world.camera.position.y += CAMERA_SPEED;
@@ -309,16 +342,20 @@ impl ApplicationHandler for App {
 
                         // move camera direction around y and x axis
                         Key::Named(NamedKey::ArrowRight) => {
-                            world.camera.direction = world.camera.direction * Mat4::rotate_y(std::f32::consts::PI / 120.0);
+                            world.camera.direction = world.camera.direction
+                                * Mat4::rotate_y(std::f32::consts::PI / 120.0);
                         }
                         Key::Named(NamedKey::ArrowLeft) => {
-                            world.camera.direction = world.camera.direction * Mat4::rotate_y(-std::f32::consts::PI / 120.0);
+                            world.camera.direction = world.camera.direction
+                                * Mat4::rotate_y(-std::f32::consts::PI / 120.0);
                         }
                         Key::Named(NamedKey::ArrowUp) => {
-                            world.camera.direction = world.camera.direction * Mat4::rotate_x(std::f32::consts::PI / 120.0);
+                            world.camera.direction = world.camera.direction
+                                * Mat4::rotate_x(std::f32::consts::PI / 120.0);
                         }
                         Key::Named(NamedKey::ArrowDown) => {
-                            world.camera.direction = world.camera.direction * Mat4::rotate_x(-std::f32::consts::PI / 120.0);
+                            world.camera.direction = world.camera.direction
+                                * Mat4::rotate_x(-std::f32::consts::PI / 120.0);
                         }
 
                         // exit program
@@ -388,9 +425,7 @@ fn window_size_dependent_setup(
     // driver to optimize things, at the cost of slower window resizes.
     // https://computergraphics.stackexchange.com/questions/5742/vulkan-best-way-of-updating-pipeline-viewport
     let pipeline = {
-        let vertex_input_state = Position::per_vertex()
-            .definition(vs)
-            .unwrap();
+        let vertex_input_state = Vertexxx::per_vertex().definition(vs).unwrap();
         let stages = [
             PipelineShaderStageCreateInfo::new(vs.clone()),
             PipelineShaderStageCreateInfo::new(fs.clone()),
@@ -444,13 +479,13 @@ fn window_size_dependent_setup(
 mod vs {
     vulkano_shaders::shader! {
         ty: "vertex",
-        path: "src/shaders/vertex_no_normal.glsl"
+        path: "src/shaders/vertex.glsl"
     }
 }
 
 mod fs {
     vulkano_shaders::shader! {
         ty: "fragment",
-        path: "src/shaders/fragment_no_normal.glsl"
+        path: "src/shaders/fragment.glsl"
     }
 }
