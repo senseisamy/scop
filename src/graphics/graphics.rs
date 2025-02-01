@@ -210,7 +210,7 @@ fn create_device(
 fn create_buffers(
     memory_allocator: &Arc<StandardMemoryAllocator>,
     object: &Object,
-) -> Result<(Subbuffer<[Vertexxx]>, Subbuffer<[u16]>)> {
+) -> Result<(Subbuffer<[Vertexxx]>, Subbuffer<[u32]>)> {
     let vertex_buffer = Buffer::from_iter(
         memory_allocator.clone(),
         BufferCreateInfo {

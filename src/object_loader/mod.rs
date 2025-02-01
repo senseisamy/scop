@@ -5,7 +5,7 @@ use vulkano::{buffer::BufferContents, pipeline::graphics::vertex_input::Vertex};
 #[derive(Debug, Clone)]
 pub struct Object {
     pub vertex: Vec<Vertexxx>,
-    pub indice: Vec<u16>,
+    pub indice: Vec<u32>,
 }
 
 #[derive(BufferContents, Vertex, Debug, Clone, Copy, Default)]

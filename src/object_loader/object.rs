@@ -13,7 +13,7 @@ impl std::str::FromStr for Object {
         let mut vt: Vec<[f32; 3]> = Vec::from([[0.0, 0.0, 0.0]]);
         let mut vn: Vec<[f32; 3]> = Vec::from([[0.0, 0.0, 0.0]]);
 
-        let mut unique_vertices: HashMap<Vertexxx, u16> = HashMap::new();
+        let mut unique_vertices: HashMap<Vertexxx, u32> = HashMap::new();
         let mut obj = Object {
             vertex: Vec::from([Vertexxx::default()]),
             indice: Vec::new(),
@@ -143,7 +143,7 @@ fn handle_face(
     mut v2: Vertexxx,
     mut v3: Vertexxx,
     obj: &mut Object,
-    unique_vertices: &mut HashMap<Vertexxx, u16>,
+    unique_vertices: &mut HashMap<Vertexxx, u32>,
     has_normal: bool,
 ) {
     if !has_normal {
@@ -158,8 +158,8 @@ fn handle_face(
         if unique_vertices.contains_key(&v) {
             obj.indice.push(unique_vertices[&v]);
         } else {
-            unique_vertices.insert(v, obj.vertex.len() as u16);
-            obj.indice.push(obj.vertex.len() as u16);
+            unique_vertices.insert(v, obj.vertex.len() as u32);
+            obj.indice.push(obj.vertex.len() as u32);
             obj.vertex.push(v);
         }
     }

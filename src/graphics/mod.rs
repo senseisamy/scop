@@ -31,7 +31,7 @@ pub struct App {
     pub command_buffer_allocator: Arc<StandardCommandBufferAllocator>,
     pub uniform_buffer_allocator: SubbufferAllocator,
     pub vertex_buffer: Subbuffer<[Vertexxx]>,
-    pub index_buffer: Subbuffer<[u16]>,
+    pub index_buffer: Subbuffer<[u32]>,
     pub rcx: Option<RenderContext>,
 }
 
