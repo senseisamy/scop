@@ -1,14 +1,10 @@
 use super::{Object, Vertexxx};
 use crate::math::Vec3;
-use anyhow::{anyhow, Result};
-use std::collections::HashMap;
+use anyhow::{anyhow, Context, Result};
+use std::{collections::HashMap, usize};
 
-pub struct ParseObjectError;
-
-impl std::str::FromStr for Object {
-    type Err = ParseObjectError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+impl Object {
+    pub fn from_str(s: &str) -> Result<Self> {
         let mut v: Vec<[f32; 3]> = Vec::from([[0.0, 0.0, 0.0]]);
         let mut vt: Vec<[f32; 3]> = Vec::from([[0.0, 0.0, 0.0]]);
         let mut vn: Vec<[f32; 3]> = Vec::from([[0.0, 0.0, 0.0]]);
@@ -19,7 +15,8 @@ impl std::str::FromStr for Object {
             indice: Vec::new(),
         };
 
-        for line in s.lines() {
+        for (line_number, line) in s.lines().enumerate() {
+            let line_number = line_number + 1;
             let line: Vec<&str> = line
                 .split_ascii_whitespace()
                 .take_while(|x| !x.contains("#"))
@@ -30,62 +27,59 @@ impl std::str::FromStr for Object {
             match line[0] {
                 "v" => {
                     if line.len() != 4 {
-                        return Err(ParseObjectError);
+                        return Err(anyhow!("line {line_number}: expected (x, y, z) format"));
                     }
                     v.push([
-                        line[1].parse().map_err(|_| ParseObjectError)?,
-                        line[2].parse().map_err(|_| ParseObjectError)?,
-                        line[3].parse().map_err(|_| ParseObjectError)?,
+                        line[1].parse()?,
+                        line[2].parse()?,
+                        line[3].parse()?,
                     ]);
                 }
                 "vt" => {
-                    if line.len() != 3 {
-                        return Err(ParseObjectError);
+                    if line.len() < 3 || line.len() > 4 {
+                        return Err(anyhow!("line {line_number}: expected (u, v, [w]) format"));
                     }
                     vt.push([
-                        line[1].parse().map_err(|_| ParseObjectError)?,
-                        line[2].parse().map_err(|_| ParseObjectError)?,
-                        0.0,
+                        line[1].parse()?,
+                        line[2].parse()?,
+                        if line.len() == 4 {
+                            line[3].parse()?
+                        } else {
+                            0.0
+                        }
                     ]);
                 }
                 "vn" => {
                     if line.len() != 4 {
-                        return Err(ParseObjectError);
+                        return Err(anyhow!("line {line_number}: expected (x, y, z) format"));
                     }
                     vn.push([
-                        line[1].parse().map_err(|_| ParseObjectError)?,
-                        line[2].parse().map_err(|_| ParseObjectError)?,
-                        line[3].parse().map_err(|_| ParseObjectError)?,
+                        line[1].parse()?,
+                        line[2].parse()?,
+                        line[3].parse()?,
                     ]);
                 }
                 "f" => {
                     if line.len() == 4 {
-                        let (v1, has_normal, _has_texture) =
-                            parse_face_el(line[1], &v, &vt, &vn).map_err(|_| ParseObjectError)?;
-                        let (v2, _, _) =
-                            parse_face_el(line[2], &v, &vt, &vn).map_err(|_| ParseObjectError)?;
-                        let (v3, _, _) =
-                            parse_face_el(line[3], &v, &vt, &vn).map_err(|_| ParseObjectError)?;
+                        let (v1, has_normal, _has_texture) = parse_face_el(line[1], &v, &vt, &vn)?;
+                        let (v2, _, _) = parse_face_el(line[2], &v, &vt, &vn)?;
+                        let (v3, _, _) = parse_face_el(line[3], &v, &vt, &vn)?;
 
                         handle_face(v1, v2, v3, &mut obj, &mut unique_vertices, has_normal);
                     } else if line.len() == 5 {
-                        let (v1, has_normal, _has_texture) =
-                            parse_face_el(line[1], &v, &vt, &vn).map_err(|_| ParseObjectError)?;
-                        let (v2, _, _) =
-                            parse_face_el(line[2], &v, &vt, &vn).map_err(|_| ParseObjectError)?;
-                        let (v3, _, _) =
-                            parse_face_el(line[3], &v, &vt, &vn).map_err(|_| ParseObjectError)?;
-                        let (v4, _, _) =
-                            parse_face_el(line[4], &v, &vt, &vn).map_err(|_| ParseObjectError)?;
+                        let (v1, has_normal, _has_texture) = parse_face_el(line[1], &v, &vt, &vn)?;
+                        let (v2, _, _) = parse_face_el(line[2], &v, &vt, &vn)?;
+                        let (v3, _, _) = parse_face_el(line[3], &v, &vt, &vn)?;
+                        let (v4, _, _) = parse_face_el(line[4], &v, &vt, &vn)?;
 
                         handle_face(v1, v2, v3, &mut obj, &mut unique_vertices, has_normal);
                         handle_face(v2, v3, v4, &mut obj, &mut unique_vertices, has_normal);
                     } else {
-                        return Err(ParseObjectError);
+                        return Err(anyhow!("line {line_number}: expected (a, b, c [, d]) format"));
                     }
                 }
                 "#" | "o" | "s" | "mtllib" | "usemtl" | "g" => continue,
-                _ => return Err(ParseObjectError),
+                _ => return Err(anyhow!("line {line_number}: invalid line start")),
             }
         }
 
@@ -104,15 +98,15 @@ fn parse_face_el(
     match el.len() {
         1 => {
             let vertex = Vertexxx {
-                position: v[el[0].parse::<usize>()?],
+                position: v[convert_index(el[0], v.len())?],
                 ..Default::default()
             };
             Ok((vertex, false, false))
         }
         2 => {
             let vertex = Vertexxx {
-                position: v[el[0].parse::<usize>()?],
-                texture: vt[el[1].parse::<usize>()?],
+                position: v[convert_index(el[0], v.len())?],
+                texture: vt[convert_index(el[1], vt.len())?],
                 ..Default::default()
             };
             Ok((vertex, false, false))
@@ -120,21 +114,33 @@ fn parse_face_el(
         3 => {
             if el[1] != "" {
                 let vertex = Vertexxx {
-                    position: v[el[0].parse::<usize>()?],
-                    texture: vt[el[1].parse::<usize>()?],
-                    normal: vn[el[2].parse::<usize>()?],
+                    position: v[convert_index(el[0], v.len())?],
+                    texture: vt[convert_index(el[1], vt.len())?],
+                    normal: vn[convert_index(el[2], vn.len())?],
                 };
                 Ok((vertex, true, true))
             } else {
                 let vertex = Vertexxx {
-                    position: v[el[0].parse::<usize>()?],
-                    normal: vn[el[2].parse::<usize>()?],
+                    position: v[convert_index(el[0], v.len())?],
+                    normal: vn[convert_index(el[2], vn.len())?],
                     ..Default::default()
                 };
                 Ok((vertex, true, false))
             }
         }
         _ => Err(anyhow!("Parsing error")),
+    }
+}
+
+fn convert_index(i: &str, size: usize) -> Result<usize> {
+    let signed: i32 = i.parse()?;
+    if signed < 0 {
+        Ok( size
+            .checked_sub(signed.abs() as usize)
+            .context("failed to get index")?
+        )
+    } else {
+        Ok(signed as usize)
     }
 }
 

@@ -7,7 +7,6 @@ use graphics::App;
 use object_loader::Object;
 use std::env;
 use std::fs;
-use std::str::FromStr;
 use winit::event_loop::EventLoop;
 
 const OBJ_COLOR: (u8, u8, u8) = (240, 247, 244);
@@ -21,7 +20,7 @@ fn main() -> Result<()> {
     let file = fs::read_to_string(&args[1])?;
     let object = match Object::from_str(&file) {
         Ok(object) => object,
-        Err(_) => bail!("Failed to parse the obj file"),
+        Err(e) => bail!(e),
     };
 
     //println!("{object:?}");
