@@ -102,36 +102,35 @@ impl InputState {
     }
 }
 
-const CAMERA_SPEED: f32 = 0.05;
-
 impl RenderContext {
     pub fn update_state_after_inputs(&mut self) {
         let state = &self.input_state;
+        let speed = self.dt * 5.0;
 
         if state.btn_zoom_in {
-            self.camera.distance -= CAMERA_SPEED;
+            self.camera.distance -= speed;
             if self.camera.distance < 0.0 {
                 self.camera.distance = 0.0;
             }
         }
         if state.btn_zoom_out {
-            self.camera.distance += CAMERA_SPEED;
+            self.camera.distance += speed;
         }
         if state.btn_rotate_left {
-            self.camera.theta = (self.camera.theta + CAMERA_SPEED) % (2.0 * consts::PI);
+            self.camera.theta = (self.camera.theta + speed / 2.0) % (2.0 * consts::PI);
         }
         if state.btn_rotate_right {
-            self.camera.theta = (self.camera.theta - CAMERA_SPEED) % (2.0 * consts::PI);
+            self.camera.theta = (self.camera.theta - speed / 2.0) % (2.0 * consts::PI);
         }
         if state.btn_move_up {
-            self.camera.target.y += CAMERA_SPEED;
+            self.camera.target.y += speed;
         }
         if state.btn_move_down {
-            self.camera.target.y -= CAMERA_SPEED;
+            self.camera.target.y -= speed;
         }
         if state.mouse_left_click {
-            self.camera.theta += state.mouse_delta[0] * 5.0;
-            self.camera.phi += -state.mouse_delta[1] * 5.0;
+            self.camera.theta += state.mouse_delta[0] * speed * 100.0;
+            self.camera.phi += -state.mouse_delta[1] * speed * 100.0;
             self.camera.phi = f32::max(
                 f32::min(self.camera.phi, consts::FRAC_PI_2 - 0.1),
                 -consts::FRAC_PI_2 + 0.1,
