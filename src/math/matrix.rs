@@ -123,7 +123,7 @@ impl Mat4 {
         rotation_matrix
     }
 
-    pub fn rotation_z(angle: f32) -> Self {
+    pub fn rotate_z(angle: f32) -> Self {
         let mut rotation_matrix = Self::identity();
         rotation_matrix[0][0] = angle.cos();
         rotation_matrix[0][1] = -angle.sin();

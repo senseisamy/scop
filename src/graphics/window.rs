@@ -1,4 +1,4 @@
-use super::{input::InputState, App, Camera, RenderContext, View};
+use super::{input::InputState, App, Camera, RenderContext};
 use crate::{
     math::{Mat4, Vec3},
     object_loader::Vertexxx,
@@ -85,12 +85,16 @@ impl ApplicationHandler for App {
             pipeline,
             recreate_swapchain,
             previous_frame_end,
-            world: View {
-                world_transformation: Mat4::identity(),
-                camera: Camera {
-                    position: Vec3::from(&[0.0, 0.0, 10.0]),
-                    direction: Vec3::from(&[0.0, 0.0, 1.0]),
-                },
+            // world: World {
+            //     transform: Mat4::identity(),
+            //     scale: 1.0,
+            // },
+            camera: Camera {
+                position: Vec3::from(&[0.0, 0.0, 0.0]),
+                target: Vec3::from(&[0.0, 0.0, 0.0]),
+                distance: 10.0,
+                theta: 0.0,
+                phi: 0.0,
             },
             input_state: InputState::new(),
             time: Instant::now(),
@@ -147,15 +151,17 @@ impl ApplicationHandler for App {
                     let aspect_ratio = rcx.swapchain.image_extent()[0] as f32
                         / rcx.swapchain.image_extent()[1] as f32;
 
-                    let world = &rcx.world;
+                    //let world = &rcx.world;
+                    let camera = &rcx.camera;
 
-                    let proj = Mat4::perspective(std::f32::consts::FRAC_PI_2, aspect_ratio, 0.01, 100.0);
-
-                    let scale = Mat4::scale(0.01, 0.01, 0.01);
+                    let proj =
+                        Mat4::perspective(std::f32::consts::FRAC_PI_2, aspect_ratio, 0.01, 100.0);
 
                     let uniform_data = vs::Data {
-                        world: world.world_transformation.0,
-                        view: (world.camera.view_matrix() * scale).0,
+                        world: Mat4::identity().0,
+                        view: (camera.direction_view_matrix(camera.target_dir())
+                            * Mat4::scale(0.1, 0.1, 0.1))
+                        .0,
                         proj: proj.0,
                         color: Vec3 {
                             x: OBJ_COLOR.0 as f32 / 255.0,
@@ -277,17 +283,22 @@ impl ApplicationHandler for App {
                 }
 
                 rcx.update_time();
+                rcx.input_state.reset();
                 rcx.window.set_title(&format!(
-                    "Scop! fps: {:.2}",
-                    rcx.avg_fps()
+                    "Scop! fps: {:.2} pos: ({:.1}, {:.1}, {:.1})",
+                    rcx.avg_fps(),
+                    rcx.camera.position.x,
+                    rcx.camera.position.y,
+                    rcx.camera.position.z,
                 ));
             }
             _ => {
-                rcx.input_state.handle_input(rcx.window.inner_size(), &event);
+                rcx.input_state
+                    .handle_input(rcx.window.inner_size(), &event);
             }
         }
 
-        if rcx.input_state.should_quit {
+        if rcx.input_state.btn_quit {
             event_loop.exit();
         }
     }

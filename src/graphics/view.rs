@@ -2,8 +2,8 @@ use super::Camera;
 use crate::math::{Mat4, Vec3};
 
 impl Camera {
-    pub fn view_matrix(&self) -> Mat4 {
-        let w = self.direction.normalize();
+    pub fn direction_view_matrix(&self, direction: Vec3) -> Mat4 {
+        let w = direction.normalize();
         let u = Vec3::cross(
             &w,
             &Vec3 {
@@ -29,5 +29,17 @@ impl Camera {
         view_matrix[3][1] = -Vec3::dot(&v, &self.position);
         view_matrix[3][2] = -Vec3::dot(&w, &self.position);
         view_matrix
+    }
+
+    pub fn target_dir(&self) -> Vec3 {
+        (self.position - self.target).normalize()
+    }
+
+    pub fn update_position(&mut self) {
+        self.position = Vec3 {
+            x: self.target.x + self.distance * self.phi.cos() * self.theta.cos(),
+            y: self.target.y + self.distance * self.phi.sin(),
+            z: self.target.z + self.distance * self.phi.cos() * self.theta.sin(),
+        }
     }
 }

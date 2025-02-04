@@ -1,14 +1,11 @@
 pub mod graphics;
+pub mod input;
 pub mod view;
 pub mod window;
-pub mod input;
 
-use crate::{
-    math::{Mat4, Vec3},
-    object_loader::Vertexxx,
-};
-use std::{sync::Arc, time::Instant};
+use crate::{math::Vec3, object_loader::Vertexxx};
 use input::InputState;
+use std::{sync::Arc, time::Instant};
 use vulkano::{
     buffer::{allocator::SubbufferAllocator, Subbuffer},
     command_buffer::allocator::StandardCommandBufferAllocator,
@@ -47,7 +44,7 @@ pub struct RenderContext {
     pipeline: Arc<GraphicsPipeline>,
     recreate_swapchain: bool,
     previous_frame_end: Option<Box<dyn GpuFuture>>,
-    world: View,
+    camera: Camera,
     input_state: InputState,
     time: Instant,
     dt: f32,
@@ -56,12 +53,10 @@ pub struct RenderContext {
     avg_fps: f32,
 }
 
-pub struct View {
-    world_transformation: Mat4,
-    camera: Camera,
-}
-
 pub struct Camera {
     position: Vec3,
-    direction: Vec3,
+    target: Vec3,
+    distance: f32,
+    theta: f32, // horizontal angle
+    phi: f32,   // vertical angle
 }

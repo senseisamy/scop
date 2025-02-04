@@ -29,11 +29,7 @@ impl Object {
                     if line.len() != 4 {
                         return Err(anyhow!("line {line_number}: expected (x, y, z) format"));
                     }
-                    v.push([
-                        line[1].parse()?,
-                        line[2].parse()?,
-                        line[3].parse()?,
-                    ]);
+                    v.push([line[1].parse()?, line[2].parse()?, line[3].parse()?]);
                 }
                 "vt" => {
                     if line.len() < 3 || line.len() > 4 {
@@ -46,18 +42,14 @@ impl Object {
                             line[3].parse()?
                         } else {
                             0.0
-                        }
+                        },
                     ]);
                 }
                 "vn" => {
                     if line.len() != 4 {
                         return Err(anyhow!("line {line_number}: expected (x, y, z) format"));
                     }
-                    vn.push([
-                        line[1].parse()?,
-                        line[2].parse()?,
-                        line[3].parse()?,
-                    ]);
+                    vn.push([line[1].parse()?, line[2].parse()?, line[3].parse()?]);
                 }
                 "f" => {
                     if line.len() == 4 {
@@ -75,7 +67,9 @@ impl Object {
                         handle_face(v1, v2, v3, &mut obj, &mut unique_vertices, has_normal);
                         handle_face(v1, v3, v4, &mut obj, &mut unique_vertices, has_normal);
                     } else {
-                        return Err(anyhow!("line {line_number}: expected (a, b, c [, d]) format"));
+                        return Err(anyhow!(
+                            "line {line_number}: expected (a, b, c [, d]) format"
+                        ));
                     }
                 }
                 "#" | "o" | "s" | "mtllib" | "usemtl" | "g" => continue,
@@ -135,10 +129,9 @@ fn parse_face_el(
 fn convert_index(i: &str, size: usize) -> Result<usize> {
     let signed: i32 = i.parse()?;
     if signed < 0 {
-        Ok( size
+        Ok(size
             .checked_sub(signed.abs() as usize)
-            .context("failed to get index")?
-        )
+            .context("failed to get index")?)
     } else {
         Ok(signed as usize)
     }
@@ -178,3 +171,21 @@ fn calculate_normal(v1: &Vertexxx, v2: &Vertexxx, v3: &Vertexxx) -> [f32; 3] {
 
     Vec3::normalize(&Vec3::cross(&(v2 - v1), &(v3 - v2))).to_array()
 }
+
+// pub fn get_obj_center(vertex: &[Vertexxx]) -> Vec3 {
+//     let mut vmax = Vec3{x: std::f32::MIN, y: std::f32::MIN, z: std::f32::MIN};
+//     let mut vmin = Vec3{x: std::f32::MAX, y: std::f32::MAX, z: std::f32::MAX};
+//     for vertex in vertex.iter() {
+//         vmax = Vec3 {
+//             x: if vertex.position[0] > vmax.x {vertex.position[0]} else {vmax.x},
+//             y: if vertex.position[1] > vmax.y {vertex.position[1]} else {vmax.y},
+//             z: if vertex.position[2] > vmax.z {vertex.position[2]} else {vmax.z}
+//         };
+//         vmin = Vec3 {
+//             x: if vertex.position[0] < vmin.x {vertex.position[0]} else {vmax.x},
+//             y: if vertex.position[1] < vmin.y {vertex.position[1]} else {vmax.y},
+//             z: if vertex.position[2] < vmin.z {vertex.position[2]} else {vmax.z}
+//         };
+//     }
+//     vmax - vmin
+// }
