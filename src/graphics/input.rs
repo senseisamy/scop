@@ -117,10 +117,10 @@ impl RenderContext {
             self.camera.distance += speed;
         }
         if state.btn_rotate_left {
-            self.camera.theta = (self.camera.theta + speed / 2.0) % (2.0 * consts::PI);
+            self.camera.theta = (self.camera.theta - speed / 2.0) % (2.0 * consts::PI);
         }
         if state.btn_rotate_right {
-            self.camera.theta = (self.camera.theta - speed / 2.0) % (2.0 * consts::PI);
+            self.camera.theta = (self.camera.theta + speed / 2.0) % (2.0 * consts::PI);
         }
         if state.btn_move_up {
             self.camera.target.y += speed;
@@ -129,7 +129,7 @@ impl RenderContext {
             self.camera.target.y -= speed;
         }
         if state.mouse_left_click {
-            self.camera.theta += state.mouse_delta[0] * speed * 100.0;
+            self.camera.theta += -state.mouse_delta[0] * speed * 100.0;
             self.camera.phi += -state.mouse_delta[1] * speed * 100.0;
             self.camera.phi = f32::max(
                 f32::min(self.camera.phi, consts::FRAC_PI_2 - 0.1),

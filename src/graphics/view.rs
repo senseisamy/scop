@@ -4,7 +4,7 @@ use crate::math::{Mat4, Vec3};
 impl Camera {
     pub fn direction_view_matrix(&self, direction: Vec3) -> Mat4 {
         let w = direction.normalize();
-        let u = Vec3::cross(
+        let u = -Vec3::cross(
             &w,
             &Vec3 {
                 x: 0.0,
@@ -13,7 +13,7 @@ impl Camera {
             },
         )
         .normalize();
-        let v = Vec3::cross(&w, &u);
+        let v = -Vec3::cross(&w, &u);
 
         let mut view_matrix = Mat4::identity();
         view_matrix[0][0] = u.x;

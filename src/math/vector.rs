@@ -1,4 +1,4 @@
-use std::ops::{Add, AddAssign, Index, IndexMut, Mul, MulAssign, Sub};
+use std::ops::{Add, AddAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub};
 
 use super::Mat4;
 
@@ -102,6 +102,18 @@ impl Mul<Mat4> for Vec3 {
 impl MulAssign<Mat4> for Vec3 {
     fn mul_assign(&mut self, rhs: Mat4) {
         *self = *self * rhs;
+    }
+}
+
+impl Neg for Vec3 {
+    type Output = Vec3;
+
+    fn neg(self) -> Self::Output {
+        Vec3 {
+            x: -self.x,
+            y: -self.y,
+            z: -self.z
+        }
     }
 }
 
