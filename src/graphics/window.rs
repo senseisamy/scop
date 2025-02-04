@@ -93,7 +93,7 @@ impl ApplicationHandler for App {
                 position: Vec3::from(&[0.0, 0.0, 0.0]),
                 target: Vec3::from(&[0.0, 0.0, 0.0]),
                 distance: 10.0,
-                theta: 0.0,
+                theta: std::f32::consts::FRAC_PI_2,
                 phi: 0.0,
             },
             input_state: InputState::new(),
