@@ -133,8 +133,8 @@ impl RenderContext {
             self.camera.theta += state.mouse_delta[0] * 5.0;
             self.camera.phi += -state.mouse_delta[1] * 5.0;
             self.camera.phi = f32::max(
-                f32::min(self.camera.phi, consts::FRAC_PI_2),
-                -consts::FRAC_PI_2,
+                f32::min(self.camera.phi, consts::FRAC_PI_2 - 0.1),
+                -consts::FRAC_PI_2 + 0.1,
             );
         }
         // if state.right_click {
