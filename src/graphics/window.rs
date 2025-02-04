@@ -88,7 +88,7 @@ impl ApplicationHandler for App {
             camera: Camera {
                 position: Vec3::from(&[0.0, 0.0, 0.0]),
                 target: self.object.center,
-                distance: 1.2 * f32::max(self.object.size.x, f32::max(self.object.size.y, self.object.size.z)),
+                distance: 1.5 * f32::max(self.object.size.x, f32::max(self.object.size.y, self.object.size.z)),
                 theta: std::f32::consts::FRAC_PI_2,
                 phi: 0.0,
             },
@@ -151,7 +151,7 @@ impl ApplicationHandler for App {
                     let camera = &rcx.camera;
 
                     let proj =
-                        Mat4::perspective(std::f32::consts::FRAC_PI_2, aspect_ratio, 0.01, 5000.0);
+                        Mat4::perspective(std::f32::consts::FRAC_PI_4, aspect_ratio, 0.01, 5000.0);
 
                     let uniform_data = vs::Data {
                         world: Mat4::identity().0,

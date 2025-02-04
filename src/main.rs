@@ -9,8 +9,8 @@ use std::env;
 use std::fs;
 use winit::event_loop::EventLoop;
 
-const OBJ_COLOR: (u8, u8, u8) = (255, 231, 214);
-const BG_COLOR: (u8, u8, u8) = (13, 19, 33);
+const OBJ_COLOR: (u8, u8, u8) = (255, 255, 255);
+const BG_COLOR: (u8, u8, u8) = (40, 40, 40);
 
 fn main() -> Result<()> {
     let args: Vec<String> = env::args().collect();
