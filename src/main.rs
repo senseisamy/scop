@@ -23,10 +23,8 @@ fn main() -> Result<()> {
         Err(e) => bail!(e),
     };
 
-    //println!("{object:?}");
-
     let event_loop = EventLoop::new()?;
-    let mut app = App::new(&event_loop, &object)?;
+    let mut app = App::new(&event_loop, object)?;
 
     event_loop.run_app(&mut app)?;
 

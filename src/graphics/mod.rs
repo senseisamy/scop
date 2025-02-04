@@ -3,7 +3,7 @@ pub mod input;
 pub mod view;
 pub mod window;
 
-use crate::{math::Vec3, object_loader::Vertexxx};
+use crate::{math::Vec3, object_loader::{Object, Vertexxx}};
 use input::InputState;
 use std::{sync::Arc, time::Instant};
 use vulkano::{
@@ -31,7 +31,8 @@ pub struct App {
     pub uniform_buffer_allocator: SubbufferAllocator,
     pub vertex_buffer: Subbuffer<[Vertexxx]>,
     pub index_buffer: Subbuffer<[u32]>,
-    pub rcx: Option<RenderContext>,
+    pub object: Object,
+    pub rcx: Option<RenderContext>
 }
 
 pub struct RenderContext {
@@ -50,7 +51,7 @@ pub struct RenderContext {
     dt: f32,
     dt_sum: f32,
     frame_count: f32,
-    avg_fps: f32,
+    avg_fps: f32
 }
 
 pub struct Camera {

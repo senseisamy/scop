@@ -13,6 +13,8 @@ impl Object {
         let mut obj = Object {
             vertex: Vec::from([Vertexxx::default()]),
             indice: Vec::new(),
+            size: Vec3{x: 0.0, y: 0.0, z: 0.0},
+            center: Vec3{x: 0.0, y: 0.0, z: 0.0}
         };
 
         for (line_number, line) in s.lines().enumerate() {
@@ -26,7 +28,7 @@ impl Object {
             }
             match line[0] {
                 "v" => {
-                    if line.len() != 4 {
+                    if line.len() < 4 {
                         return Err(anyhow!("line {line_number}: expected (x, y, z) format"));
                     }
                     v.push([line[1].parse()?, line[2].parse()?, line[3].parse()?]);
@@ -66,6 +68,8 @@ impl Object {
 
                         handle_face(v1, v2, v3, &mut obj, &mut unique_vertices, has_normal);
                         handle_face(v1, v3, v4, &mut obj, &mut unique_vertices, has_normal);
+                    } else if line.len() > 5 {
+                        println!("warning: line {}: face has more than 5 vertices", line_number);
                     } else {
                         return Err(anyhow!(
                             "line {line_number}: expected (a, b, c [, d]) format"
@@ -77,7 +81,39 @@ impl Object {
             }
         }
 
+        obj.set_obj_size_and_center();
+
+        println!("size: {:?}  center: {:?}", obj.size, obj.center);
+
         Ok(obj)
+    }
+
+    fn set_obj_size_and_center(&mut self) {
+        let mut vmax = Vec3{x: std::f32::MIN, y: std::f32::MIN, z: std::f32::MIN};
+        let mut vmin = Vec3{x: std::f32::MAX, y: std::f32::MAX, z: std::f32::MAX};
+        for vertex in self.vertex.iter() {
+            vmax = Vec3 {
+                x: vmax.x.max(vertex.position[0]),
+                y: vmax.y.max(vertex.position[1]),
+                z: vmax.z.max(vertex.position[2])
+            };
+            vmin = Vec3 {
+                x: vmin.x.min(vertex.position[0]),
+                y: vmin.y.min(vertex.position[1]),
+                z: vmin.z.min(vertex.position[2])
+            };
+        }
+        println!("min: {:?}  max: {:?}", vmin, vmax);
+        self.size = Vec3 {
+            x: vmax.x - vmin.x,
+            y: vmax.y - vmin.y,
+            z: vmax.z - vmin.z
+        };
+        self.center = Vec3 {
+            x: (vmin.x + vmax.x) / 2.0,
+            y: (vmin.y + vmax.y) / 2.0,
+            z: (vmin.z + vmax.z) / 2.0
+        };
     }
 }
 
@@ -171,21 +207,3 @@ fn calculate_normal(v1: &Vertexxx, v2: &Vertexxx, v3: &Vertexxx) -> [f32; 3] {
 
     Vec3::normalize(&Vec3::cross(&(v2 - v1), &(v3 - v2))).to_array()
 }
-
-// pub fn get_obj_center(vertex: &[Vertexxx]) -> Vec3 {
-//     let mut vmax = Vec3{x: std::f32::MIN, y: std::f32::MIN, z: std::f32::MIN};
-//     let mut vmin = Vec3{x: std::f32::MAX, y: std::f32::MAX, z: std::f32::MAX};
-//     for vertex in vertex.iter() {
-//         vmax = Vec3 {
-//             x: if vertex.position[0] > vmax.x {vertex.position[0]} else {vmax.x},
-//             y: if vertex.position[1] > vmax.y {vertex.position[1]} else {vmax.y},
-//             z: if vertex.position[2] > vmax.z {vertex.position[2]} else {vmax.z}
-//         };
-//         vmin = Vec3 {
-//             x: if vertex.position[0] < vmin.x {vertex.position[0]} else {vmax.x},
-//             y: if vertex.position[1] < vmin.y {vertex.position[1]} else {vmax.y},
-//             z: if vertex.position[2] < vmin.z {vertex.position[2]} else {vmax.z}
-//         };
-//     }
-//     vmax - vmin
-// }

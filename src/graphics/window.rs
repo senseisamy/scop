@@ -85,14 +85,10 @@ impl ApplicationHandler for App {
             pipeline,
             recreate_swapchain,
             previous_frame_end,
-            // world: World {
-            //     transform: Mat4::identity(),
-            //     scale: 1.0,
-            // },
             camera: Camera {
                 position: Vec3::from(&[0.0, 0.0, 0.0]),
-                target: Vec3::from(&[0.0, 0.0, 0.0]),
-                distance: 10.0,
+                target: self.object.center,
+                distance: 1.2 * f32::max(self.object.size.x, f32::max(self.object.size.y, self.object.size.z)),
                 theta: std::f32::consts::FRAC_PI_2,
                 phi: 0.0,
             },
@@ -155,7 +151,7 @@ impl ApplicationHandler for App {
                     let camera = &rcx.camera;
 
                     let proj =
-                        Mat4::perspective(std::f32::consts::FRAC_PI_2, aspect_ratio, 0.01, 100.0);
+                        Mat4::perspective(std::f32::consts::FRAC_PI_2, aspect_ratio, 0.01, 5000.0);
 
                     let uniform_data = vs::Data {
                         world: Mat4::identity().0,
@@ -285,11 +281,14 @@ impl ApplicationHandler for App {
                 rcx.update_time();
                 rcx.input_state.reset();
                 rcx.window.set_title(&format!(
-                    "Scop! fps: {:.2} pos: ({:.1}, {:.1}, {:.1})",
+                    "Scop! fps: {:.2} pos: ({:.1}, {:.1}, {:.1}) obj size: ({}, {}, {})",
                     rcx.avg_fps(),
                     rcx.camera.position.x,
                     rcx.camera.position.y,
                     rcx.camera.position.z,
+                    self.object.size.x,
+                    self.object.size.y,
+                    self.object.size.z,
                 ));
             }
             _ => {

@@ -24,7 +24,7 @@ use vulkano::{
 use winit::{dpi::PhysicalSize, event_loop::EventLoop};
 
 impl App {
-    pub fn new(event_loop: &EventLoop<()>, object: &Object) -> Result<Self> {
+    pub fn new(event_loop: &EventLoop<()>, object: Object) -> Result<Self> {
         // load the vulkan library and create an instance of it
         let library = VulkanLibrary::new()?;
         let instance = create_instance(library, event_loop)?;
@@ -54,7 +54,7 @@ impl App {
             },
         );
 
-        let (vertex_buffer, index_buffer) = create_buffers(&memory_allocator, object)?;
+        let (vertex_buffer, index_buffer) = create_buffers(&memory_allocator, &object)?;
 
         let rcx = None;
 
@@ -68,6 +68,7 @@ impl App {
             uniform_buffer_allocator,
             vertex_buffer,
             index_buffer,
+            object,
             rcx,
         })
     }
