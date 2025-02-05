@@ -3,7 +3,7 @@ use crate::{
     math::{Mat4, Vec3},
     object_loader::Vertexxx,
 };
-use crate::{BG_COLOR, OBJ_COLOR};
+use crate::BG_COLOR;
 use std::{sync::Arc, time::Instant};
 use vulkano::{
     command_buffer::{AutoCommandBufferBuilder, CommandBufferUsage, RenderPassBeginInfo},
