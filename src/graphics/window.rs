@@ -119,7 +119,7 @@ impl ApplicationHandler for App {
                     return;
                 }
 
-                rcx.update_state_after_inputs();
+                rcx.update_state_after_inputs(&self.object);
                 rcx.previous_frame_end.as_mut().unwrap().cleanup_finished();
 
                 if rcx.recreate_swapchain {

@@ -1,3 +1,5 @@
+use crate::object_loader::Object;
+
 use super::RenderContext;
 use std::{f32::consts, time::Instant};
 use winit::{
@@ -103,34 +105,34 @@ impl InputState {
 }
 
 impl RenderContext {
-    pub fn update_state_after_inputs(&mut self) {
+    pub fn update_state_after_inputs(&mut self, object: &Object) {
         let state = &self.input_state;
-        let speed = self.dt * 5.0;
+        let camera_speed = self.dt * object.size.length();
 
         if state.btn_zoom_in {
-            self.camera.distance -= speed;
+            self.camera.distance -= camera_speed;
             if self.camera.distance < 0.0 {
                 self.camera.distance = 0.0;
             }
         }
         if state.btn_zoom_out {
-            self.camera.distance += speed;
+            self.camera.distance += camera_speed;
         }
         if state.btn_rotate_left {
-            self.camera.theta = (self.camera.theta - speed / 2.0) % (2.0 * consts::PI);
+            self.camera.theta = (self.camera.theta - consts::PI * self.dt) % (2.0 * consts::PI);
         }
         if state.btn_rotate_right {
-            self.camera.theta = (self.camera.theta + speed / 2.0) % (2.0 * consts::PI);
+            self.camera.theta = (self.camera.theta + consts::PI * self.dt) % (2.0 * consts::PI);
         }
         if state.btn_move_up {
-            self.camera.target.y += speed;
+            self.camera.target.y += camera_speed;
         }
         if state.btn_move_down {
-            self.camera.target.y -= speed;
+            self.camera.target.y -= camera_speed;
         }
         if state.mouse_left_click {
-            self.camera.theta += -state.mouse_delta[0] * speed * 100.0;
-            self.camera.phi += -state.mouse_delta[1] * speed * 100.0;
+            self.camera.theta += -state.mouse_delta[0] * 10.0;
+            self.camera.phi += -state.mouse_delta[1] * 10.0;
             self.camera.phi = f32::max(
                 f32::min(self.camera.phi, consts::FRAC_PI_2 - 0.1),
                 -consts::FRAC_PI_2 + 0.1,
