@@ -158,13 +158,7 @@ impl ApplicationHandler for App {
                         view: (camera.direction_view_matrix(camera.target_dir())
                             * Mat4::scale(0.1, 0.1, 0.1))
                         .0,
-                        proj: proj.0,
-                        color: Vec3 {
-                            x: OBJ_COLOR.0 as f32 / 255.0,
-                            y: OBJ_COLOR.1 as f32 / 255.0,
-                            z: OBJ_COLOR.2 as f32 / 255.0,
-                        }
-                        .to_array(),
+                        proj: proj.0
                     };
 
                     let buffer = self.uniform_buffer_allocator.allocate_sized().unwrap();

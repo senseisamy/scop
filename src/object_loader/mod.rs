@@ -23,8 +23,12 @@ pub struct Vertexxx {
     pub normal: [f32; 3],
 
     #[format(R32G32B32_SFLOAT)]
+    #[name("in_color")]
+    pub color: [f32; 3],
+
+    #[format(R32G32_SFLOAT)]
     #[name("in_texture")]
-    pub texture: [f32; 3],
+    pub texture: [f32; 2],
 }
 
 impl PartialEq for Vertexxx {

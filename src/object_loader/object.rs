@@ -5,9 +5,9 @@ use std::{collections::HashMap, usize};
 
 impl Object {
     pub fn from_str(s: &str) -> Result<Self> {
-        let mut v: Vec<[f32; 3]> = Vec::from([[0.0, 0.0, 0.0]]);
-        let mut vt: Vec<[f32; 3]> = Vec::from([[0.0, 0.0, 0.0]]);
-        let mut vn: Vec<[f32; 3]> = Vec::from([[0.0, 0.0, 0.0]]);
+        let mut v: Vec<[[f32; 3]; 2]> = vec![[[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]];
+        let mut vt: Vec<[f32; 2]> = vec![[0.0, 0.0]];
+        let mut vn: Vec<[f32; 3]> = vec![[0.0, 0.0, 0.0]];
 
         let mut unique_vertices: HashMap<Vertexxx, u32> = HashMap::new();
         let mut obj = Object {
@@ -28,10 +28,27 @@ impl Object {
             }
             match line[0] {
                 "v" => {
-                    if line.len() < 4 {
-                        return Err(anyhow!("line {line_number}: expected (x, y, z) format"));
+                    if line.len() == 4 {
+                        v.push([
+                            [line[1].parse()?,
+                            line[2].parse()?,
+                            line[3].parse()?],
+                            [1.0,
+                            1.0,
+                            1.0]
+                        ]);
+                    } else if line.len() == 7 {
+                        v.push([
+                            [line[1].parse()?,
+                            line[2].parse()?,
+                            line[3].parse()?],
+                            [line[4].parse()?,
+                            line[5].parse()?,
+                            line[6].parse()?]
+                        ]);
+                    } else {
+                        return Err(anyhow!("line {line_number}: expected (x, y, z [, r, g, b]) format"));
                     }
-                    v.push([line[1].parse()?, line[2].parse()?, line[3].parse()?]);
                 }
                 "vt" => {
                     if line.len() < 3 || line.len() > 4 {
@@ -39,12 +56,7 @@ impl Object {
                     }
                     vt.push([
                         line[1].parse()?,
-                        line[2].parse()?,
-                        if line.len() == 4 {
-                            line[3].parse()?
-                        } else {
-                            0.0
-                        },
+                        line[2].parse()?
                     ]);
                 }
                 "vn" => {
@@ -119,8 +131,8 @@ impl Object {
 
 fn parse_face_el(
     face: &str,
-    v: &[[f32; 3]],
-    vt: &[[f32; 3]],
+    v: &[[[f32; 3]; 2]],
+    vt: &[[f32; 2]],
     vn: &[[f32; 3]],
 ) -> Result<(Vertexxx, bool, bool)> {
     let el: Vec<&str> = face.split('/').collect();
@@ -128,14 +140,16 @@ fn parse_face_el(
     match el.len() {
         1 => {
             let vertex = Vertexxx {
-                position: v[convert_index(el[0], v.len())?],
+                position: v[convert_index(el[0], v.len())?][0],
+                color: v[convert_index(el[0], v.len())?][1],
                 ..Default::default()
             };
             Ok((vertex, false, false))
         }
         2 => {
             let vertex = Vertexxx {
-                position: v[convert_index(el[0], v.len())?],
+                position: v[convert_index(el[0], v.len())?][0],
+                color: v[convert_index(el[0], v.len())?][1],
                 texture: vt[convert_index(el[1], vt.len())?],
                 ..Default::default()
             };
@@ -144,14 +158,16 @@ fn parse_face_el(
         3 => {
             if el[1] != "" {
                 let vertex = Vertexxx {
-                    position: v[convert_index(el[0], v.len())?],
+                    position: v[convert_index(el[0], v.len())?][0],
+                    color: v[convert_index(el[0], v.len())?][1],
                     texture: vt[convert_index(el[1], vt.len())?],
                     normal: vn[convert_index(el[2], vn.len())?],
                 };
                 Ok((vertex, true, true))
             } else {
                 let vertex = Vertexxx {
-                    position: v[convert_index(el[0], v.len())?],
+                    position: v[convert_index(el[0], v.len())?][0],
+                    color: v[convert_index(el[0], v.len())?][1],
                     normal: vn[convert_index(el[2], vn.len())?],
                     ..Default::default()
                 };
