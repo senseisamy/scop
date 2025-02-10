@@ -207,9 +207,9 @@ impl ApplicationHandler for App {
                             clear_values: vec![
                                 Some(
                                     [
-                                        BG_COLOR.0 as f32 / 255.0,
-                                        BG_COLOR.1 as f32 / 255.0,
-                                        BG_COLOR.2 as f32 / 255.0,
+                                        BG_COLOR.0 / 255.0,
+                                        BG_COLOR.1 / 255.0,
+                                        BG_COLOR.2 / 255.0,
                                         1.0,
                                     ]
                                     .into(),
@@ -275,14 +275,8 @@ impl ApplicationHandler for App {
                 rcx.update_time();
                 rcx.input_state.reset();
                 rcx.window.set_title(&format!(
-                    "Scop! fps: {:.2} pos: ({:.1}, {:.1}, {:.1}) obj size: ({}, {}, {})",
-                    rcx.avg_fps(),
-                    rcx.camera.position.x,
-                    rcx.camera.position.y,
-                    rcx.camera.position.z,
-                    self.object.size.x,
-                    self.object.size.y,
-                    self.object.size.z,
+                    "Scop! fps: {:.2}",
+                    rcx.avg_fps()
                 ));
             }
             _ => {

@@ -7,4 +7,4 @@ edition = "2021"
 anyhow = "1.0.95"
 vulkano = { git = "https://github.com/vulkano-rs/vulkano/" }
 vulkano-shaders = { git = "https://github.com/vulkano-rs/vulkano/" }
-winit = { version = "0.30.7", default-features = true, features = ["rwh_05"]}
+winit = { version = "0.30.9", default-features = true, features = ["rwh_05"]}

@@ -95,8 +95,6 @@ impl Object {
 
         obj.set_obj_size_and_center();
 
-        println!("size: {:?}  center: {:?}", obj.size, obj.center);
-
         Ok(obj)
     }
 
@@ -115,7 +113,6 @@ impl Object {
                 z: vmin.z.min(vertex.position[2])
             };
         }
-        println!("min: {:?}  max: {:?}", vmin, vmax);
         self.size = Vec3 {
             x: vmax.x - vmin.x,
             y: vmax.y - vmin.y,
