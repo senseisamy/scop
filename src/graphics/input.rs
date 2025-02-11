@@ -21,6 +21,7 @@ pub struct InputState {
     pub btn_rotate_right: bool,
     pub btn_move_up: bool,
     pub btn_move_down: bool,
+    pub btn_lock_light: bool,
     pub btn_quit: bool,
 }
 
@@ -39,6 +40,7 @@ impl InputState {
             btn_rotate_right: false,
             btn_move_up: false,
             btn_move_down: false,
+            btn_lock_light: false,
             btn_quit: false,
         }
     }
@@ -63,6 +65,7 @@ impl InputState {
             Key::Character("s") => self.btn_zoom_out = event.state.is_pressed(),
             Key::Character("a") => self.btn_rotate_left = event.state.is_pressed(),
             Key::Character("d") => self.btn_rotate_right = event.state.is_pressed(),
+            Key::Character("l") => self.btn_lock_light = event.state.is_pressed(),
             Key::Named(NamedKey::Space) => self.btn_move_up = event.state.is_pressed(),
             Key::Named(NamedKey::Shift) => self.btn_move_down = event.state.is_pressed(),
             Key::Named(NamedKey::Escape) => self.btn_quit = event.state.is_pressed(),
@@ -101,6 +104,7 @@ impl InputState {
     pub fn reset(&mut self) {
         self.mouse_delta = [0.0, 0.0];
         self.mouse_scroll_delta = 0.0;
+        self.btn_lock_light = false;
     }
 }
 
@@ -138,15 +142,17 @@ impl RenderContext {
                 -consts::FRAC_PI_2 + 0.1,
             );
         }
-        // if state.right_click {
-        //     let rotate_y = Mat4::rotate_y(-state.mouse_delta[0] * 2.0);
-
-        //     self.camera.direction *= rotate_y;
-        // }
         if state.mouse_scroll_delta != 0.0 {
             self.camera.distance += -state.mouse_scroll_delta;
         }
+        if state.btn_lock_light {
+            self.light.pos_locked = !self.light.pos_locked;
+        }
+
         self.camera.update_position();
+        if !self.light.pos_locked {
+            self.light.position = self.camera.position;
+        }
     }
 
     /// Returns the average FPS.

@@ -46,6 +46,7 @@ pub struct RenderContext {
     recreate_swapchain: bool,
     previous_frame_end: Option<Box<dyn GpuFuture>>,
     camera: Camera,
+    light: Light,
     input_state: InputState,
     time: Instant,
     dt: f32,
@@ -60,4 +61,11 @@ pub struct Camera {
     distance: f32,
     theta: f32, // horizontal angle
     phi: f32,   // vertical angle
+}
+
+pub struct Light {
+    position: Vec3,
+    pos_locked: bool,
+    color: [f32; 4],
+    ambient_color: [f32; 4]
 }

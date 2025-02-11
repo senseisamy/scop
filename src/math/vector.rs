@@ -9,6 +9,16 @@ pub struct Vec3 {
     pub z: f32,
 }
 
+#[macro_export]
+macro_rules! vec3 {
+    ($x: expr, $y: expr, $z: expr) => {
+        Vec3{x: $x, y: $y, z: $z}
+    };
+    ($xyz: expr) => {
+        Vec3{x: $xyz, y: $xyz, z: $xyz}
+    };
+}
+
 impl Index<usize> for Vec3 {
     type Output = f32;
 
@@ -55,11 +65,7 @@ impl Sub for Vec3 {
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self::Output {
-        Self {
-            x: self.x - rhs.x,
-            y: self.y - rhs.y,
-            z: self.z - rhs.z,
-        }
+        self + -rhs
     }
 }
 
@@ -106,10 +112,10 @@ impl MulAssign<Mat4> for Vec3 {
 }
 
 impl Neg for Vec3 {
-    type Output = Vec3;
+    type Output = Self;
 
     fn neg(self) -> Self::Output {
-        Vec3 {
+        Self {
             x: -self.x,
             y: -self.y,
             z: -self.z

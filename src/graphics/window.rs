@@ -1,7 +1,7 @@
-use super::{input::InputState, App, Camera, RenderContext};
+use super::{input::InputState, App, Camera, Light, RenderContext};
 use crate::{
     math::{Mat4, Vec3},
-    object_loader::Vertexxx,
+    object_loader::Vertexxx, vec3,
 };
 use crate::BG_COLOR;
 use std::{sync::Arc, time::Instant};
@@ -86,11 +86,17 @@ impl ApplicationHandler for App {
             recreate_swapchain,
             previous_frame_end,
             camera: Camera {
-                position: Vec3::from(&[0.0, 0.0, 0.0]),
+                position: vec3!(0.0, 0.0, 0.0),
                 target: self.object.center,
                 distance: 1.5 * f32::max(self.object.size.x, f32::max(self.object.size.y, self.object.size.z)),
                 theta: std::f32::consts::FRAC_PI_2,
                 phi: 0.0,
+            },
+            light: Light {
+                position: vec3!(0.0, 0.0, 10.0),
+                pos_locked: false,
+                color: [1.0, 1.0, 1.0, 0.8],
+                ambient_color: [1.0, 1.0, 1.0, 0.2]
             },
             input_state: InputState::new(),
             time: Instant::now(),
@@ -149,6 +155,7 @@ impl ApplicationHandler for App {
 
                     //let world = &rcx.world;
                     let camera = &rcx.camera;
+                    let light = &rcx.light;
 
                     let proj =
                         Mat4::perspective(std::f32::consts::FRAC_PI_4, aspect_ratio, 0.01, 5000.0);
@@ -158,7 +165,10 @@ impl ApplicationHandler for App {
                         view: (camera.direction_view_matrix(camera.target_dir())
                             * Mat4::scale(0.1, 0.1, 0.1))
                         .0,
-                        proj: proj.0
+                        proj: proj.0,
+                        light_pos: light.position.to_array().into(),
+                        light_color: light.color,
+                        ambient_light_color: light.ambient_color
                     };
 
                     let buffer = self.uniform_buffer_allocator.allocate_sized().unwrap();
