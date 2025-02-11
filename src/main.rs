@@ -9,7 +9,7 @@ use std::env;
 use std::fs;
 use winit::event_loop::EventLoop;
 
-const BG_COLOR: (f32, f32, f32) = (20.0, 20.0, 20.0);
+const BG_COLOR: (f32, f32, f32) = (40.0, 40.0, 40.0);
 
 fn main() -> Result<()> {
     let args: Vec<String> = env::args().collect();
