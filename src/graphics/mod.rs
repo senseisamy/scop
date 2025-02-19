@@ -3,7 +3,11 @@ pub mod input;
 pub mod view;
 pub mod window;
 
-use crate::{math::Vec3, object_loader::{Object, Vertexxx}};
+use crate::{
+    math::Vec3,
+    object_loader::{Object, Vertexxx},
+    vec3,
+};
 use input::InputState;
 use std::{sync::Arc, time::Instant};
 use vulkano::{
@@ -32,7 +36,7 @@ pub struct App {
     pub vertex_buffer: Subbuffer<[Vertexxx]>,
     pub index_buffer: Subbuffer<[u32]>,
     pub object: Object,
-    pub rcx: Option<RenderContext>
+    pub rcx: Option<RenderContext>,
 }
 
 pub struct RenderContext {
@@ -52,7 +56,7 @@ pub struct RenderContext {
     dt: f32,
     dt_sum: f32,
     frame_count: f32,
-    avg_fps: f32
+    avg_fps: f32,
 }
 
 pub struct Camera {
@@ -68,5 +72,35 @@ pub struct Light {
     pos_locked: bool,
     colors: Vec<Vec3>,
     color: (usize, f32),
-    ambient_color: (usize, f32)
+    ambient_color: (usize, f32),
+}
+
+impl Default for Camera {
+    fn default() -> Self {
+        Self {
+            position: vec3!(0.0, 0.0, 0.0),
+            target: vec3!(0.0, 0.0, 0.0),
+            distance: 1.0,
+            theta: std::f32::consts::FRAC_PI_2,
+            phi: 0.0,
+        }
+    }
+}
+
+impl Default for Light {
+    fn default() -> Self {
+        Self {
+            position: vec3!(0.0, 0.0, 10.0),
+            pos_locked: false,
+            colors: vec![
+                vec3!(1.0, 1.0, 1.0),
+                vec3!(1.0, 0.0, 0.0),
+                vec3!(0.0, 1.0, 0.0),
+                vec3!(0.0, 0.0, 1.0),
+                vec3!(1.0, 0.55294117647058823529, 0.63137254901960784313),
+            ],
+            color: (0, 1.0),
+            ambient_color: (0, 0.2),
+        }
+    }
 }

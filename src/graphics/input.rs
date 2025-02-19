@@ -1,6 +1,6 @@
 use crate::object_loader::Object;
 
-use super::RenderContext;
+use super::{Camera, Light, RenderContext};
 use std::{f32::consts, time::Instant};
 use winit::{
     dpi::{PhysicalPosition, PhysicalSize},
@@ -23,6 +23,7 @@ pub struct InputState {
     pub btn_move_down: bool,
     pub btn_lock_light: bool,
     pub btn_light_color: bool,
+    pub btn_reset: bool,
     pub btn_quit: bool,
 }
 
@@ -43,6 +44,7 @@ impl InputState {
             btn_move_down: false,
             btn_lock_light: false,
             btn_light_color: false,
+            btn_reset: false,
             btn_quit: false,
         }
     }
@@ -69,6 +71,7 @@ impl InputState {
             Key::Character("d") => self.btn_rotate_right = event.state.is_pressed(),
             Key::Character("l") => self.btn_lock_light = event.state.is_pressed(),
             Key::Character("c") => self.btn_light_color = event.state.is_pressed(),
+            Key::Character("r") => self.btn_reset = event.state.is_pressed(),
             Key::Named(NamedKey::Space) => self.btn_move_up = event.state.is_pressed(),
             Key::Named(NamedKey::Shift) => self.btn_move_down = event.state.is_pressed(),
             Key::Named(NamedKey::Escape) => self.btn_quit = event.state.is_pressed(),
@@ -109,6 +112,7 @@ impl InputState {
         self.mouse_scroll_delta = 0.0;
         self.btn_lock_light = false;
         self.btn_light_color = false;
+        self.btn_reset = false;
     }
 }
 
@@ -153,7 +157,15 @@ impl RenderContext {
             self.light.pos_locked = !self.light.pos_locked;
         }
         if state.btn_light_color {
-            self.light.color.0 = (self.light.color.0 + 1) % self.light.colors.len(); 
+            self.light.color.0 = (self.light.color.0 + 1) % self.light.colors.len();
+        }
+        if state.btn_reset {
+            self.camera = Camera {
+                target: object.center,
+                distance: 1.5 * f32::max(object.size.x, f32::max(object.size.y, object.size.z)),
+                ..Default::default()
+            };
+            self.light = Light::default();
         }
 
         self.camera.update_position();

@@ -1,14 +1,14 @@
 pub mod object;
+use crate::math::Vec3;
 use std::hash::Hash;
 use vulkano::{buffer::BufferContents, pipeline::graphics::vertex_input::Vertex};
-use crate::math::Vec3;
 
 #[derive(Debug, Clone)]
 pub struct Object {
     pub vertex: Vec<Vertexxx>,
     pub indice: Vec<u32>,
     pub size: Vec3,
-    pub center: Vec3
+    pub center: Vec3,
 }
 
 #[derive(BufferContents, Vertex, Debug, Clone, Copy, Default)]

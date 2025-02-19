@@ -1,9 +1,6 @@
 use super::{input::InputState, App, Camera, Light, RenderContext};
-use crate::{
-    math::{Mat4, Vec3},
-    object_loader::Vertexxx, vec3,
-};
 use crate::BG_COLOR;
+use crate::{math::Mat4, object_loader::Vertexxx};
 use std::{sync::Arc, time::Instant};
 use vulkano::{
     command_buffer::{AutoCommandBufferBuilder, CommandBufferUsage, RenderPassBeginInfo},
@@ -86,24 +83,15 @@ impl ApplicationHandler for App {
             recreate_swapchain,
             previous_frame_end,
             camera: Camera {
-                position: vec3!(0.0, 0.0, 0.0),
                 target: self.object.center,
-                distance: 1.5 * f32::max(self.object.size.x, f32::max(self.object.size.y, self.object.size.z)),
-                theta: std::f32::consts::FRAC_PI_2,
-                phi: 0.0,
+                distance: 1.5
+                    * f32::max(
+                        self.object.size.x,
+                        f32::max(self.object.size.y, self.object.size.z),
+                    ),
+                ..Default::default()
             },
-            light: Light {
-                position: vec3!(0.0, 0.0, 10.0),
-                pos_locked: false,
-                colors: vec![
-                    vec3!(1.0, 1.0, 1.0),
-                    vec3!(1.0, 0.0, 0.0),
-                    vec3!(0.0, 1.0, 0.0),
-                    vec3!(0.0, 0.0, 1.0)
-                ],
-                color: (0, 0.8),
-                ambient_color: (0, 0.2)
-            },
+            light: Light::default(),
             input_state: InputState::new(),
             time: Instant::now(),
             dt: 0.0,
@@ -173,8 +161,13 @@ impl ApplicationHandler for App {
                         .0,
                         proj: proj.0,
                         light_pos: light.position.to_array().into(),
-                        light_color: (light.colors[light.color.0] * light.color.1).to_array().into(),
-                        ambient_light_color: (light.colors[light.ambient_color.0] * light.ambient_color.1).to_array().into()
+                        light_color: (light.colors[light.color.0] * light.color.1)
+                            .to_array()
+                            .into(),
+                        ambient_light_color: (light.colors[light.ambient_color.0]
+                            * light.ambient_color.1)
+                            .to_array()
+                            .into(),
                     };
 
                     let buffer = self.uniform_buffer_allocator.allocate_sized().unwrap();
@@ -290,10 +283,8 @@ impl ApplicationHandler for App {
 
                 rcx.update_time();
                 rcx.input_state.reset();
-                rcx.window.set_title(&format!(
-                    "Scop! fps: {:.2}",
-                    rcx.avg_fps()
-                ));
+                rcx.window
+                    .set_title(&format!("Scop! fps: {:.2}", rcx.avg_fps()));
             }
             _ => {
                 rcx.input_state

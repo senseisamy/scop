@@ -12,10 +12,18 @@ pub struct Vec3 {
 #[macro_export]
 macro_rules! vec3 {
     ($x: expr, $y: expr, $z: expr) => {
-        Vec3{x: $x, y: $y, z: $z}
+        Vec3 {
+            x: $x,
+            y: $y,
+            z: $z,
+        }
     };
     ($xyz: expr) => {
-        Vec3{x: $xyz, y: $xyz, z: $xyz}
+        Vec3 {
+            x: $xyz,
+            y: $xyz,
+            z: $xyz,
+        }
     };
 }
 
@@ -118,7 +126,7 @@ impl Neg for Vec3 {
         Self {
             x: -self.x,
             y: -self.y,
-            z: -self.z
+            z: -self.z,
         }
     }
 }

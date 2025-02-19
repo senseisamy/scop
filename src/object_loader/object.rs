@@ -13,8 +13,16 @@ impl Object {
         let mut obj = Object {
             vertex: Vec::from([Vertexxx::default()]),
             indice: Vec::new(),
-            size: Vec3{x: 0.0, y: 0.0, z: 0.0},
-            center: Vec3{x: 0.0, y: 0.0, z: 0.0}
+            size: Vec3 {
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            },
+            center: Vec3 {
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            },
         };
 
         for (line_number, line) in s.lines().enumerate() {
@@ -30,42 +38,32 @@ impl Object {
                 "v" => {
                     if line.len() == 4 {
                         v.push([
-                            [line[1].parse()?,
-                            line[2].parse()?,
-                            line[3].parse()?],
-                            [1.0,
-                            1.0,
-                            1.0]
+                            [line[1].parse()?, line[2].parse()?, line[3].parse()?],
+                            [1.0, 1.0, 1.0],
                         ]);
                     } else if line.len() == 7 {
-                        let mut color: [f32; 3] = [
-                            line[4].parse()?,
-                            line[5].parse()?,
-                            line[6].parse()?
-                        ];
+                        let mut color: [f32; 3] =
+                            [line[4].parse()?, line[5].parse()?, line[6].parse()?];
                         for c in color.iter_mut() {
                             if *c > 1.0 {
                                 *c = *c / 255.0;
                             }
                         }
                         v.push([
-                            [line[1].parse()?,
-                            line[2].parse()?,
-                            line[3].parse()?],
-                            color
+                            [line[1].parse()?, line[2].parse()?, line[3].parse()?],
+                            color,
                         ]);
                     } else {
-                        return Err(anyhow!("line {line_number}: expected (x, y, z [, r, g, b]) format"));
+                        return Err(anyhow!(
+                            "line {line_number}: expected (x, y, z [, r, g, b]) format"
+                        ));
                     }
                 }
                 "vt" => {
                     if line.len() < 3 || line.len() > 4 {
                         return Err(anyhow!("line {line_number}: expected (u, v, [w]) format"));
                     }
-                    vt.push([
-                        line[1].parse()?,
-                        line[2].parse()?
-                    ]);
+                    vt.push([line[1].parse()?, line[2].parse()?]);
                 }
                 "vn" => {
                     if line.len() != 4 {
@@ -89,7 +87,10 @@ impl Object {
                         handle_face(v1, v2, v3, &mut obj, &mut unique_vertices, has_normal);
                         handle_face(v1, v3, v4, &mut obj, &mut unique_vertices, has_normal);
                     } else if line.len() > 5 {
-                        println!("warning: line {}: face has more than 5 vertices", line_number);
+                        println!(
+                            "warning: line {}: face has more than 5 vertices",
+                            line_number
+                        );
                     } else {
                         return Err(anyhow!(
                             "line {line_number}: expected (a, b, c [, d]) format"
@@ -107,29 +108,37 @@ impl Object {
     }
 
     fn set_obj_size_and_center(&mut self) {
-        let mut vmax = Vec3{x: std::f32::MIN, y: std::f32::MIN, z: std::f32::MIN};
-        let mut vmin = Vec3{x: std::f32::MAX, y: std::f32::MAX, z: std::f32::MAX};
+        let mut vmax = Vec3 {
+            x: std::f32::MIN,
+            y: std::f32::MIN,
+            z: std::f32::MIN,
+        };
+        let mut vmin = Vec3 {
+            x: std::f32::MAX,
+            y: std::f32::MAX,
+            z: std::f32::MAX,
+        };
         for vertex in self.vertex.iter() {
             vmax = Vec3 {
                 x: vmax.x.max(vertex.position[0]),
                 y: vmax.y.max(vertex.position[1]),
-                z: vmax.z.max(vertex.position[2])
+                z: vmax.z.max(vertex.position[2]),
             };
             vmin = Vec3 {
                 x: vmin.x.min(vertex.position[0]),
                 y: vmin.y.min(vertex.position[1]),
-                z: vmin.z.min(vertex.position[2])
+                z: vmin.z.min(vertex.position[2]),
             };
         }
         self.size = Vec3 {
             x: vmax.x - vmin.x,
             y: vmax.y - vmin.y,
-            z: vmax.z - vmin.z
+            z: vmax.z - vmin.z,
         };
         self.center = Vec3 {
             x: (vmin.x + vmax.x) / 2.0,
             y: (vmin.y + vmax.y) / 2.0,
-            z: (vmin.z + vmax.z) / 2.0
+            z: (vmin.z + vmax.z) / 2.0,
         };
     }
 }
