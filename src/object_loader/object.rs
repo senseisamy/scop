@@ -38,13 +38,21 @@ impl Object {
                             1.0]
                         ]);
                     } else if line.len() == 7 {
+                        let mut color: [f32; 3] = [
+                            line[4].parse()?,
+                            line[5].parse()?,
+                            line[6].parse()?
+                        ];
+                        for c in color.iter_mut() {
+                            if *c > 1.0 {
+                                *c = *c / 255.0;
+                            }
+                        }
                         v.push([
                             [line[1].parse()?,
                             line[2].parse()?,
                             line[3].parse()?],
-                            [line[4].parse()?,
-                            line[5].parse()?,
-                            line[6].parse()?]
+                            color
                         ]);
                     } else {
                         return Err(anyhow!("line {line_number}: expected (x, y, z [, r, g, b]) format"));

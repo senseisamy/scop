@@ -14,8 +14,8 @@ layout(set = 0, binding = 0) uniform Data {
     mat4 view;
     mat4 proj;
     vec3 light_pos;
-    vec4 light_color;
-    vec4 ambient_light_color;
+    vec3 light_color;
+    vec3 ambient_light_color;
 } uniforms;
 
 void main() {

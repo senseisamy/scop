@@ -95,8 +95,14 @@ impl ApplicationHandler for App {
             light: Light {
                 position: vec3!(0.0, 0.0, 10.0),
                 pos_locked: false,
-                color: [1.0, 1.0, 1.0, 0.8],
-                ambient_color: [1.0, 1.0, 1.0, 0.2]
+                colors: vec![
+                    vec3!(1.0, 1.0, 1.0),
+                    vec3!(1.0, 0.0, 0.0),
+                    vec3!(0.0, 1.0, 0.0),
+                    vec3!(0.0, 0.0, 1.0)
+                ],
+                color: (0, 0.8),
+                ambient_color: (0, 0.2)
             },
             input_state: InputState::new(),
             time: Instant::now(),
@@ -167,8 +173,8 @@ impl ApplicationHandler for App {
                         .0,
                         proj: proj.0,
                         light_pos: light.position.to_array().into(),
-                        light_color: light.color,
-                        ambient_light_color: light.ambient_color
+                        light_color: (light.colors[light.color.0] * light.color.1).to_array().into(),
+                        ambient_light_color: (light.colors[light.ambient_color.0] * light.ambient_color.1).to_array().into()
                     };
 
                     let buffer = self.uniform_buffer_allocator.allocate_sized().unwrap();

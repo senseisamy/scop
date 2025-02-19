@@ -66,6 +66,7 @@ pub struct Camera {
 pub struct Light {
     position: Vec3,
     pos_locked: bool,
-    color: [f32; 4],
-    ambient_color: [f32; 4]
+    colors: Vec<Vec3>,
+    color: (usize, f32),
+    ambient_color: (usize, f32)
 }

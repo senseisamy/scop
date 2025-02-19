@@ -22,6 +22,7 @@ pub struct InputState {
     pub btn_move_up: bool,
     pub btn_move_down: bool,
     pub btn_lock_light: bool,
+    pub btn_light_color: bool,
     pub btn_quit: bool,
 }
 
@@ -41,6 +42,7 @@ impl InputState {
             btn_move_up: false,
             btn_move_down: false,
             btn_lock_light: false,
+            btn_light_color: false,
             btn_quit: false,
         }
     }
@@ -66,6 +68,7 @@ impl InputState {
             Key::Character("a") => self.btn_rotate_left = event.state.is_pressed(),
             Key::Character("d") => self.btn_rotate_right = event.state.is_pressed(),
             Key::Character("l") => self.btn_lock_light = event.state.is_pressed(),
+            Key::Character("c") => self.btn_light_color = event.state.is_pressed(),
             Key::Named(NamedKey::Space) => self.btn_move_up = event.state.is_pressed(),
             Key::Named(NamedKey::Shift) => self.btn_move_down = event.state.is_pressed(),
             Key::Named(NamedKey::Escape) => self.btn_quit = event.state.is_pressed(),
@@ -105,6 +108,7 @@ impl InputState {
         self.mouse_delta = [0.0, 0.0];
         self.mouse_scroll_delta = 0.0;
         self.btn_lock_light = false;
+        self.btn_light_color = false;
     }
 }
 
@@ -147,6 +151,9 @@ impl RenderContext {
         }
         if state.btn_lock_light {
             self.light.pos_locked = !self.light.pos_locked;
+        }
+        if state.btn_light_color {
+            self.light.color.0 = (self.light.color.0 + 1) % self.light.colors.len(); 
         }
 
         self.camera.update_position();
