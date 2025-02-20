@@ -147,18 +147,14 @@ impl ApplicationHandler for App {
                     let aspect_ratio = rcx.swapchain.image_extent()[0] as f32
                         / rcx.swapchain.image_extent()[1] as f32;
 
-                    //let world = &rcx.world;
                     let camera = &rcx.camera;
                     let light = &rcx.light;
 
-                    let proj =
-                        Mat4::perspective(std::f32::consts::FRAC_PI_4, aspect_ratio, 0.01, 5000.0);
+                    let proj = Mat4::perspective(0.8, aspect_ratio, 1.0, 10000.0);
 
                     let uniform_data = vs::Data {
                         world: Mat4::identity().0,
-                        view: (camera.direction_view_matrix(camera.target_dir())
-                            * Mat4::scale(0.1, 0.1, 0.1))
-                        .0,
+                        view: (camera.direction_view_matrix(camera.target_dir())).0,
                         proj: proj.0,
                         light_pos: light.position.to_array().into(),
                         light_color: (light.colors[light.color.0] * light.color.1)

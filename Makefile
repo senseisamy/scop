@@ -1,10 +1,14 @@
 all: build copy
 
-build:
+release:
 	@cargo build --release
+	@ln -s -f target/release/scop ./scop
+
+build:
+	@cargo build
 
 copy:
-	@ln -s -f target/release/scop ./scop
+	@ln -s -f target/debug/scop ./scop
 
 check:
 	@cargo check
