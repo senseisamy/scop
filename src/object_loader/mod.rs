@@ -1,4 +1,5 @@
 pub mod object;
+pub mod png;
 use crate::math::Vec3;
 use std::hash::Hash;
 use vulkano::{buffer::BufferContents, pipeline::graphics::vertex_input::Vertex};

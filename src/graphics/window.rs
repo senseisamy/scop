@@ -160,8 +160,7 @@ impl ApplicationHandler for App {
                         light_color: (light.colors[light.color.0] * light.color.1)
                             .to_array()
                             .into(),
-                        ambient_light_color: (light.colors[light.ambient_color.0]
-                            * light.ambient_color.1)
+                        ambient_light_color: (light.colors[0] * light.ambient_color.1)
                             .to_array()
                             .into(),
                     };
