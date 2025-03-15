@@ -1,10 +1,10 @@
-use super::{Object, Vertexxx};
+use super::{Object, Texture, Vertexxx};
 use crate::math::Vec3;
 use anyhow::{anyhow, Context, Result};
 use std::{collections::HashMap, usize};
 
 impl Object {
-    pub fn from_str(s: &str) -> Result<Self> {
+    pub fn parse(object: &str, texture: Option<&str>) -> Result<Self> {
         let mut v: Vec<[[f32; 3]; 2]> = vec![[[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]];
         let mut vt: Vec<[f32; 2]> = vec![[0.0, 0.0]];
         let mut vn: Vec<[f32; 3]> = vec![[0.0, 0.0, 0.0]];
@@ -23,9 +23,14 @@ impl Object {
                 y: 0.0,
                 z: 0.0,
             },
+            texture: if let Some(texture) = texture {
+                Some(Texture::parse_ppm(texture)?)
+            } else {
+                None
+            },
         };
 
-        for (line_number, line) in s.lines().enumerate() {
+        for (line_number, line) in object.lines().enumerate() {
             let line_number = line_number + 1;
             let line: Vec<&str> = line
                 .split_ascii_whitespace()

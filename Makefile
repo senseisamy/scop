@@ -1,18 +1,21 @@
 all: build copy
 
 release:
-	@cargo build --release
-	@ln -s -f target/release/scop ./scop
+	cargo build --release
+	ln -s -f target/release/scop ./scop
 
 build:
-	@cargo build
+	cargo build
 
 copy:
-	@ln -s -f target/debug/scop ./scop
+	ln -s -f target/debug/scop ./scop
 
 check:
-	@cargo check
+	cargo check
 
 clean:
-	@rm -f scop
-	@cargo clean
+	rm -f scop
+	cargo clean
+
+.PHONY: release build copy check clean
+.SILENT:

@@ -1,7 +1,8 @@
 pub mod object;
-pub mod png;
+pub mod texture;
 use crate::math::Vec3;
 use std::hash::Hash;
+use texture::Texture;
 use vulkano::{buffer::BufferContents, pipeline::graphics::vertex_input::Vertex};
 
 #[derive(Debug, Clone)]
@@ -10,6 +11,7 @@ pub struct Object {
     pub indice: Vec<u32>,
     pub size: Vec3,
     pub center: Vec3,
+    pub texture: Option<Texture>,
 }
 
 #[derive(BufferContents, Vertex, Debug, Clone, Copy, Default)]
