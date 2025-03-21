@@ -1,30 +1,20 @@
 use super::App;
-use crate::object_loader::{Object, Vertexxx};
+use crate::object_loader::{texture::Texture, Object, Vertexxx};
 use anyhow::{Context, Result};
-use std::sync::Arc;
+use std::{clone, sync::Arc};
 use vulkano::{
     buffer::{
         allocator::{SubbufferAllocator, SubbufferAllocatorCreateInfo},
         Buffer, BufferCreateInfo, BufferUsage, Subbuffer,
-    },
-    command_buffer::allocator::StandardCommandBufferAllocator,
-    descriptor_set::allocator::StandardDescriptorSetAllocator,
-    device::{
+    }, command_buffer::{allocator::{CommandBufferAllocator, StandardCommandBufferAllocator}, AutoCommandBufferBuilder}, descriptor_set::allocator::StandardDescriptorSetAllocator, device::{
         physical::PhysicalDeviceType, Device, DeviceCreateInfo, DeviceExtensions, Queue,
         QueueCreateInfo, QueueFlags,
-    },
-    format::Format,
-    image::{Image, ImageUsage},
-    instance::{Instance, InstanceCreateFlags, InstanceCreateInfo},
-    memory::allocator::{AllocationCreateInfo, MemoryTypeFilter, StandardMemoryAllocator},
-    render_pass::RenderPass,
-    swapchain::{Surface, Swapchain, SwapchainCreateInfo},
-    VulkanLibrary,
+    }, format::Format, image::{view::ImageView, Image, ImageCreateInfo, ImageType, ImageUsage}, instance::{Instance, InstanceCreateFlags, InstanceCreateInfo}, memory::allocator::{AllocationCreateInfo, MemoryTypeFilter, StandardMemoryAllocator}, render_pass::RenderPass, swapchain::{Surface, Swapchain, SwapchainCreateInfo}, DeviceSize, VulkanLibrary
 };
 use winit::{dpi::PhysicalSize, event_loop::EventLoop};
 
 impl App {
-    pub fn new(event_loop: &EventLoop<()>, object: Object) -> Result<Self> {
+    pub fn new(event_loop: &EventLoop<()>, object: Object, texture: Option<Texture>) -> Result<Self> {
         // load the vulkan library and create an instance of it
         let library = VulkanLibrary::new()?;
         let instance = create_instance(library, event_loop)?;
@@ -226,20 +216,6 @@ fn create_buffers(
         object.vertex.clone(),
     )?;
 
-    // let normals_buffer = Buffer::from_iter(
-    //     memory_allocator.clone(),
-    //     BufferCreateInfo {
-    //         usage: BufferUsage::VERTEX_BUFFER,
-    //         ..Default::default()
-    //     },
-    //     AllocationCreateInfo {
-    //         memory_type_filter: MemoryTypeFilter::PREFER_DEVICE
-    //             | MemoryTypeFilter::HOST_SEQUENTIAL_WRITE,
-    //         ..Default::default()
-    //     },
-    //     NORMALS
-    // )?;
-
     let index_buffer = Buffer::from_iter(
         memory_allocator.clone(),
         BufferCreateInfo {
@@ -255,4 +231,51 @@ fn create_buffers(
     )?;
 
     Ok((vertex_buffer, index_buffer))
+}
+
+fn create_texture_image_view(
+    texture: Texture,
+    memory_allocator: &Arc<StandardMemoryAllocator>,
+    command_buffer_allocator: &Arc<StandardCommandBufferAllocator>
+) -> Result<Arc<ImageView>> {
+    let mut uploads = AutoCommandBufferBuilder::primary(
+        command_buffer_allocator.clone(),
+        queue.queue_family_index(),
+        CommandBufferUsage::OneTimeSubmit,
+    )
+    .unwrap();
+
+    let format = Format::R8G8B8_SRGB;
+    let extent: [u32; 3] = [texture.width, texture.height, 1];
+
+    let upload_buffer = Buffer::new_slice(
+        memory_allocator.clone(),
+        BufferCreateInfo {
+            usage: BufferUsage::TRANSFER_SRC,
+            ..Default::default()
+        },
+        AllocationCreateInfo {
+            memory_type_filter: MemoryTypeFilter::PREFER_HOST
+                | MemoryTypeFilter::HOST_SEQUENTIAL_WRITE,
+            ..Default::default()
+        },
+        (texture.width * texture.height * 3) as DeviceSize
+    )?;
+
+    let a: &[u8] = &mut upload_buffer.write().unwrap();
+    a = texture.data.clone().as_slice();
+
+    let image = Image::new(
+        memory_allocator.clone(),
+        ImageCreateInfo {
+            image_type: ImageType::Dim2d,
+            format: Format::R8G8B8_SRGB,
+            extent,
+            usage: ImageUsage::TRANSFER_DST | ImageUsage::SAMPLED,
+            ..Default::default()
+        },
+        AllocationCreateInfo::default()
+    )?;
+
+
 }

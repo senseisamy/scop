@@ -11,7 +11,6 @@ pub struct Object {
     pub indice: Vec<u32>,
     pub size: Vec3,
     pub center: Vec3,
-    pub texture: Option<Texture>,
 }
 
 #[derive(BufferContents, Vertex, Debug, Clone, Copy, Default)]

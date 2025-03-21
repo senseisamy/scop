@@ -2,9 +2,9 @@ use anyhow::{anyhow, Result};
 
 #[derive(Debug, Clone)]
 pub struct Texture {
-    width: u32,
-    heigth: u32,
-    data: Vec<u8>,
+    pub width: u32,
+    pub height: u32,
+    pub data: Vec<u8>,
 }
 
 impl Texture {
@@ -21,7 +21,7 @@ impl Texture {
         let size: Vec<&str> = lines[1].split(' ').collect();
         let mut texture = Texture {
             width: size[0].parse()?,
-            heigth: size[1].parse()?,
+            height: size[1].parse()?,
             data: Vec::new(),
         };
 
@@ -34,7 +34,7 @@ impl Texture {
             }
         }
 
-        if texture.data.len() as u32 != 3 * texture.heigth * texture.width {
+        if texture.data.len() as u32 != 3 * texture.height * texture.width {
             return Err(anyhow!(
                 "The ppm file doesnt contain all the rgb values for its dimensions"
             ));

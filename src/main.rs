@@ -4,6 +4,7 @@ mod object_loader;
 
 use anyhow::{anyhow, Result};
 use graphics::App;
+use object_loader::texture::Texture;
 use object_loader::Object;
 use std::env;
 use std::fs;
@@ -19,16 +20,17 @@ fn main() -> Result<()> {
 
     let object = {
         let objfile = fs::read_to_string(&args[1])?;
-        if args.len() >= 3 {
-            let textfile = fs::read_to_string(&args[2])?;
-            Object::parse(&objfile, Some(&textfile))?
-        } else {
-            Object::parse(&objfile, None)?
-        }
+        Object::parse(&objfile)?
+    };
+
+    let texture = if args.len() >= 3 {
+        Some(Texture::parse_ppm(&args[2])?)
+    } else {
+        None
     };
 
     let event_loop = EventLoop::new()?;
-    let mut app = App::new(&event_loop, object)?;
+    let mut app = App::new(&event_loop, object, texture)?;
 
     event_loop.run_app(&mut app)?;
 

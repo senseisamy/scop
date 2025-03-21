@@ -4,7 +4,7 @@ use anyhow::{anyhow, Context, Result};
 use std::{collections::HashMap, usize};
 
 impl Object {
-    pub fn parse(object: &str, texture: Option<&str>) -> Result<Self> {
+    pub fn parse(object: &str) -> Result<Self> {
         let mut v: Vec<[[f32; 3]; 2]> = vec![[[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]];
         let mut vt: Vec<[f32; 2]> = vec![[0.0, 0.0]];
         let mut vn: Vec<[f32; 3]> = vec![[0.0, 0.0, 0.0]];
@@ -22,11 +22,6 @@ impl Object {
                 x: 0.0,
                 y: 0.0,
                 z: 0.0,
-            },
-            texture: if let Some(texture) = texture {
-                Some(Texture::parse_ppm(texture)?)
-            } else {
-                None
             },
         };
 
