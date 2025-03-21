@@ -1,7 +1,6 @@
-pub mod graphics;
+pub mod app;
 pub mod input;
 pub mod view;
-pub mod window;
 
 use crate::{
     math::Vec3,
@@ -11,7 +10,18 @@ use crate::{
 use input::InputState;
 use std::{sync::Arc, time::Instant};
 use vulkano::{
-    buffer::{allocator::SubbufferAllocator, Subbuffer}, command_buffer::allocator::StandardCommandBufferAllocator, descriptor_set::allocator::StandardDescriptorSetAllocator, device::{Device, Queue}, image::view::ImageView, instance::Instance, memory::allocator::StandardMemoryAllocator, pipeline::GraphicsPipeline, render_pass::{Framebuffer, RenderPass}, shader::EntryPoint, swapchain::Swapchain, sync::GpuFuture
+    buffer::{allocator::SubbufferAllocator, Subbuffer},
+    command_buffer::allocator::StandardCommandBufferAllocator,
+    descriptor_set::allocator::StandardDescriptorSetAllocator,
+    device::{Device, Queue},
+    image::{sampler::Sampler, view::ImageView},
+    instance::Instance,
+    memory::allocator::StandardMemoryAllocator,
+    pipeline::GraphicsPipeline,
+    render_pass::{Framebuffer, RenderPass},
+    shader::EntryPoint,
+    swapchain::Swapchain,
+    sync::GpuFuture,
 };
 use winit::window::Window;
 
@@ -26,7 +36,8 @@ pub struct App {
     pub vertex_buffer: Subbuffer<[Vertexxx]>,
     pub index_buffer: Subbuffer<[u32]>,
     pub object: Object,
-    pub texture: Option<Arc<ImageView>>,
+    pub texture: Arc<ImageView>,
+    pub sampler: Arc<Sampler>,
     pub rcx: Option<RenderContext>,
 }
 

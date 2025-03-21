@@ -1,4 +1,4 @@
-use super::{Object, Texture, Vertexxx};
+use super::{Object, Vertexxx};
 use crate::math::Vec3;
 use anyhow::{anyhow, Context, Result};
 use std::{collections::HashMap, usize};

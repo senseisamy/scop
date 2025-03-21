@@ -2,7 +2,6 @@ pub mod object;
 pub mod texture;
 use crate::math::Vec3;
 use std::hash::Hash;
-use texture::Texture;
 use vulkano::{buffer::BufferContents, pipeline::graphics::vertex_input::Vertex};
 
 #[derive(Debug, Clone)]

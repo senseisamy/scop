@@ -14,8 +14,8 @@ const BG_COLOR: (f32, f32, f32) = (40.0, 40.0, 40.0);
 
 fn main() -> Result<()> {
     let args: Vec<String> = env::args().collect();
-    if args.len() < 2 {
-        return Err(anyhow!("This program expect at least one argument"));
+    if args.len() != 3 {
+        return Err(anyhow!("This program expects 2 arguments"));
     }
 
     let object = {
@@ -23,10 +23,9 @@ fn main() -> Result<()> {
         Object::parse(&objfile)?
     };
 
-    let texture = if args.len() >= 3 {
-        Some(Texture::parse_ppm(&args[2])?)
-    } else {
-        None
+    let texture = {
+        let textfile = fs::read_to_string(&args[2])?;
+        Texture::parse_ppm(&textfile)?
     };
 
     let event_loop = EventLoop::new()?;
