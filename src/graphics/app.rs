@@ -462,7 +462,11 @@ impl ApplicationHandler for App {
                 let descriptor_set = DescriptorSet::new(
                     self.descriptor_set_allocator.clone(),
                     layout.clone(),
-                    [WriteDescriptorSet::buffer(0, uniform_buffer)],
+                    [
+                        WriteDescriptorSet::buffer(0, uniform_buffer),
+                        WriteDescriptorSet::sampler(1, self.sampler.clone()),
+                        WriteDescriptorSet::image_view(2, self.texture.clone())
+                    ],
                     [],
                 )
                 .unwrap();

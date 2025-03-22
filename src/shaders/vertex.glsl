@@ -8,6 +8,7 @@ layout(location = 3) in vec2 in_texture;
 layout(location = 1) out vec3 out_pos_world;
 layout(location = 2) out vec3 out_normal_world;
 layout(location = 3) out vec3 out_color;
+layout(location = 4) out vec2 out_tex_coords;
 
 layout(set = 0, binding = 0) uniform Data {
     mat4 world;
@@ -24,4 +25,5 @@ void main() {
     out_pos_world = position_world.xyz;
     out_normal_world = normalize(mat3(uniforms.world) * in_normal);
     out_color = in_color;
+    out_tex_coords = in_texture;
 }
