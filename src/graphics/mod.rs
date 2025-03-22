@@ -54,11 +54,8 @@ pub struct RenderContext {
     camera: Camera,
     light: Light,
     input_state: InputState,
-    time: Instant,
-    dt: f32,
-    dt_sum: f32,
-    frame_count: f32,
-    avg_fps: f32,
+    time_info: TimeInfo,
+    use_texture: bool,
 }
 
 pub struct Camera {
@@ -75,6 +72,14 @@ pub struct Light {
     colors: Vec<Vec3>,
     color: (usize, f32),
     ambient_color: (usize, f32),
+}
+
+pub struct TimeInfo {
+    time: Instant,
+    dt: f32,
+    dt_sum: f32,
+    frame_count: f32,
+    avg_fps: f32,
 }
 
 impl Default for Camera {
@@ -104,6 +109,18 @@ impl Default for Light {
             ],
             color: (0, 1.0),
             ambient_color: (0, 0.2),
+        }
+    }
+}
+
+impl Default for TimeInfo {
+    fn default() -> Self {
+        Self {
+            time: Instant::now(),
+            dt: 0.0,
+            dt_sum: 0.0,
+            frame_count: 0.0,
+            avg_fps: 0.0,
         }
     }
 }

@@ -63,7 +63,8 @@ impl Object {
                     if line.len() < 3 || line.len() > 4 {
                         return Err(anyhow!("line {line_number}: expected (u, v, [w]) format"));
                     }
-                    vt.push([line[1].parse()?, line[2].parse()?]);
+                    let tmp: [f32; 2] = [line[1].parse()?, line[2].parse()?];
+                    vt.push([1.0 - tmp[0], 1.0 - tmp[1]]);
                 }
                 "vn" => {
                     if line.len() != 4 {
@@ -152,6 +153,7 @@ fn parse_face_el(
     let el: Vec<&str> = face.split('/').collect();
 
     match el.len() {
+        // vertices only
         1 => {
             let vertex = Vertexxx {
                 position: v[convert_index(el[0], v.len())?][0],
@@ -160,6 +162,7 @@ fn parse_face_el(
             };
             Ok((vertex, false, false))
         }
+        // vertices and textures
         2 => {
             let vertex = Vertexxx {
                 position: v[convert_index(el[0], v.len())?][0],
@@ -170,6 +173,7 @@ fn parse_face_el(
             Ok((vertex, false, false))
         }
         3 => {
+            // vertices, normals and textures
             if el[1] != "" {
                 let vertex = Vertexxx {
                     position: v[convert_index(el[0], v.len())?][0],
@@ -178,6 +182,7 @@ fn parse_face_el(
                     normal: vn[convert_index(el[2], vn.len())?],
                 };
                 Ok((vertex, true, true))
+            // vertices and normals
             } else {
                 let vertex = Vertexxx {
                     position: v[convert_index(el[0], v.len())?][0],

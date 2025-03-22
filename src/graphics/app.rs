@@ -1,11 +1,11 @@
-use super::{input::InputState, App, Camera, Light, RenderContext};
+use super::{input::InputState, App, Camera, Light, RenderContext, TimeInfo};
 use crate::{
     math::Mat4,
     object_loader::{texture::Texture, Object, Vertexxx},
     BG_COLOR,
 };
 use anyhow::{Context, Result};
-use std::{sync::Arc, time::Instant};
+use std::sync::Arc;
 use vulkano::{
     buffer::{
         allocator::{SubbufferAllocator, SubbufferAllocatorCreateInfo},
@@ -240,8 +240,8 @@ impl App {
         let sampler = Sampler::new(
             device.clone(),
             SamplerCreateInfo {
-                mag_filter: Filter::Nearest,
-                min_filter: Filter::Nearest,
+                mag_filter: Filter::Linear,
+                min_filter: Filter::Linear,
                 address_mode: [SamplerAddressMode::Repeat; 3],
                 ..Default::default()
             },
@@ -371,7 +371,7 @@ impl ApplicationHandler for App {
             previous_frame_end,
             camera: Camera {
                 target: self.object.center,
-                distance: 1.5
+                distance: 2.5
                     * f32::max(
                         self.object.size.x,
                         f32::max(self.object.size.y, self.object.size.z),
@@ -380,11 +380,8 @@ impl ApplicationHandler for App {
             },
             light: Light::default(),
             input_state: InputState::new(),
-            time: Instant::now(),
-            dt: 0.0,
-            dt_sum: 0.0,
-            frame_count: 0.0,
-            avg_fps: 0.0,
+            time_info: TimeInfo::default(),
+            use_texture: false,
         })
     }
 
@@ -450,6 +447,7 @@ impl ApplicationHandler for App {
                         ambient_light_color: (light.colors[0] * light.ambient_color.1)
                             .to_array()
                             .into(),
+                        texture: rcx.use_texture.into(),
                     };
 
                     let buffer = self.uniform_buffer_allocator.allocate_sized().unwrap();
@@ -465,7 +463,7 @@ impl ApplicationHandler for App {
                     [
                         WriteDescriptorSet::buffer(0, uniform_buffer),
                         WriteDescriptorSet::sampler(1, self.sampler.clone()),
-                        WriteDescriptorSet::image_view(2, self.texture.clone())
+                        WriteDescriptorSet::image_view(2, self.texture.clone()),
                     ],
                     [],
                 )

@@ -23,6 +23,7 @@ pub struct InputState {
     pub btn_move_down: bool,
     pub btn_lock_light: bool,
     pub btn_light_color: bool,
+    pub btn_texture: bool,
     pub btn_reset: bool,
     pub btn_quit: bool,
 }
@@ -44,6 +45,7 @@ impl InputState {
             btn_move_down: false,
             btn_lock_light: false,
             btn_light_color: false,
+            btn_texture: false,
             btn_reset: false,
             btn_quit: false,
         }
@@ -72,6 +74,7 @@ impl InputState {
             Key::Character("l") => self.btn_lock_light = event.state.is_pressed(),
             Key::Character("c") => self.btn_light_color = event.state.is_pressed(),
             Key::Character("r") => self.btn_reset = event.state.is_pressed(),
+            Key::Character("t") => self.btn_texture = event.state.is_pressed(),
             Key::Named(NamedKey::Space) => self.btn_move_up = event.state.is_pressed(),
             Key::Named(NamedKey::Shift) => self.btn_move_down = event.state.is_pressed(),
             Key::Named(NamedKey::Escape) => self.btn_quit = event.state.is_pressed(),
@@ -112,6 +115,7 @@ impl InputState {
         self.mouse_scroll_delta = 0.0;
         self.btn_lock_light = false;
         self.btn_light_color = false;
+        self.btn_texture = false;
         self.btn_reset = false;
     }
 }
@@ -119,46 +123,59 @@ impl InputState {
 impl RenderContext {
     pub fn update_state_after_inputs(&mut self, object: &Object) {
         let state = &self.input_state;
-        let camera_speed = self.dt * object.size.length();
+        let time = &self.time_info;
+        let camera = &mut self.camera;
+        let light = &mut self.light;
+
+        let camera_speed = time.dt * object.size.length();
 
         if state.btn_zoom_in {
-            self.camera.distance -= camera_speed;
-            if self.camera.distance < 0.0 {
-                self.camera.distance = 0.0;
+            camera.distance -= camera_speed;
+            if camera.distance < 0.0 {
+                camera.distance = 0.0;
             }
         }
         if state.btn_zoom_out {
-            self.camera.distance += camera_speed;
+            camera.distance += camera_speed;
         }
         if state.btn_rotate_left {
-            self.camera.theta = (self.camera.theta - consts::PI * self.dt) % (2.0 * consts::PI);
+            camera.theta = (camera.theta - consts::PI * time.dt) % (2.0 * consts::PI);
         }
         if state.btn_rotate_right {
-            self.camera.theta = (self.camera.theta + consts::PI * self.dt) % (2.0 * consts::PI);
+            camera.theta = (camera.theta + consts::PI * time.dt) % (2.0 * consts::PI);
         }
         if state.btn_move_up {
-            self.camera.target.y += camera_speed;
+            camera.target.y += camera_speed;
         }
         if state.btn_move_down {
-            self.camera.target.y -= camera_speed;
+            camera.target.y -= camera_speed;
         }
         if state.mouse_left_click {
-            self.camera.theta += -state.mouse_delta[0] * 10.0;
-            self.camera.phi += -state.mouse_delta[1] * 10.0;
-            self.camera.phi = f32::max(
-                f32::min(self.camera.phi, consts::FRAC_PI_2 - 0.1),
+            camera.theta += -state.mouse_delta[0] * 10.0;
+            camera.phi += -state.mouse_delta[1] * 10.0;
+            camera.phi = f32::max(
+                f32::min(camera.phi, consts::FRAC_PI_2 - 0.1),
                 -consts::FRAC_PI_2 + 0.1,
             );
         }
         if state.mouse_scroll_delta != 0.0 {
-            self.camera.distance += -state.mouse_scroll_delta;
+            camera.distance += -state.mouse_scroll_delta;
         }
         if state.btn_lock_light {
-            self.light.pos_locked = !self.light.pos_locked;
+            light.pos_locked = !light.pos_locked;
         }
         if state.btn_light_color {
-            self.light.color.0 = (self.light.color.0 + 1) % self.light.colors.len();
+            light.color.0 = (light.color.0 + 1) % light.colors.len();
         }
+        if state.btn_texture {
+            self.use_texture = !self.use_texture;
+        }
+
+        camera.update_position();
+        if !light.pos_locked {
+            light.position = camera.position;
+        }
+
         if state.btn_reset {
             self.camera = Camera {
                 target: object.center,
@@ -167,28 +184,25 @@ impl RenderContext {
             };
             self.light = Light::default();
         }
-
-        self.camera.update_position();
-        if !self.light.pos_locked {
-            self.light.position = self.camera.position;
-        }
     }
 
     /// Returns the average FPS.
     pub fn avg_fps(&self) -> f32 {
-        self.avg_fps
+        self.time_info.avg_fps
     }
 
     pub fn update_time(&mut self) {
         // Each second, update average fps & reset frame count & dt sum.
-        if self.dt_sum > 1.0 {
-            self.avg_fps = self.frame_count / self.dt_sum;
-            self.frame_count = 0.0;
-            self.dt_sum = 0.0;
+        let time = &mut self.time_info;
+
+        if time.dt_sum > 1.0 {
+            time.avg_fps = time.frame_count / time.dt_sum;
+            time.frame_count = 0.0;
+            time.dt_sum = 0.0;
         }
-        self.dt = self.time.elapsed().as_secs_f32();
-        self.dt_sum += self.dt;
-        self.frame_count += 1.0;
-        self.time = Instant::now();
+        time.dt = time.time.elapsed().as_secs_f32();
+        time.dt_sum += time.dt;
+        time.frame_count += 1.0;
+        time.time = Instant::now();
     }
 }

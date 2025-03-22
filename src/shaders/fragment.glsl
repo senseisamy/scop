@@ -14,6 +14,7 @@ layout(set = 0, binding = 0) uniform Data {
     vec3 light_pos;
     vec3 light_color;
     vec3 ambient_light_color;
+    bool texture;
 } uniforms;
 
 layout(set = 0, binding = 1) uniform sampler s;
@@ -27,7 +28,12 @@ void main() {
     vec3 ambient_light = uniforms.ambient_light_color.xyz;
     vec3 diffuse_light = light_color * max(dot(normalize(in_normal_world), normalize(direction_to_light)), 0);
 
-    vec3 tex_color = texture(sampler2D(tex, s), in_tex_coords).xyz;
+    vec3 color;
+    if (uniforms.texture) {
+        color = texture(sampler2D(tex, s), in_tex_coords).xyz;
+    } else {
+        color = in_color;
+    }
 
-    out_color = vec4((diffuse_light + ambient_light) * tex_color, 1.0);
+    out_color = vec4((diffuse_light + ambient_light) * color, 1.0);
 }
