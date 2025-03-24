@@ -62,6 +62,7 @@ use winit::{
 };
 
 impl App {
+    // this function creates the App object and initializes everything before creating a window
     pub fn new(event_loop: &EventLoop<()>, object: Object, texture: Texture) -> Result<Self> {
         // load the vulkan library and create an instance of it
         let library = VulkanLibrary::new()?;
@@ -130,6 +131,7 @@ impl App {
             (device, queues.next().context("could not create a queue")?)
         };
 
+        // creating allocators for vulkan
         let memory_allocator = Arc::new(StandardMemoryAllocator::new_default(device.clone()));
 
         let descriptor_set_allocator = Arc::new(StandardDescriptorSetAllocator::new(
@@ -152,6 +154,7 @@ impl App {
             },
         );
 
+        // creating the vertex and index buffers
         let vertex_buffer = Buffer::from_iter(
             memory_allocator.clone(),
             BufferCreateInfo {
@@ -180,6 +183,7 @@ impl App {
             object.indice.clone(),
         )?;
 
+        // creating the texture
         let mut uploads = AutoCommandBufferBuilder::primary(
             command_buffer_allocator.clone(),
             queue.queue_family_index(),
