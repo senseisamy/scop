@@ -64,7 +64,7 @@ impl Object {
                         return Err(anyhow!("line {line_number}: expected (u, v, [w]) format"));
                     }
                     let tmp: [f32; 2] = [line[1].parse()?, line[2].parse()?];
-                    vt.push([1.0 - tmp[0], 1.0 - tmp[1]]);
+                    vt.push([tmp[0], 1.0 - tmp[1]]);
                 }
                 "vn" => {
                     if line.len() != 4 {
