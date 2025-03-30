@@ -192,7 +192,7 @@ impl App {
         .unwrap();
 
         let texture = {
-            let format = Format::R8G8B8A8_SRGB;
+            let format = Format::R8G8B8A8_UNORM;
             let extent: [u32; 3] = [texture.width, texture.height, 1];
 
             let upload_buffer = Buffer::new_slice(
