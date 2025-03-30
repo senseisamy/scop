@@ -1,0 +1,158 @@
+# Wavefront OBJ file made by Mineways version 9.17, http://mineways.com
+# World: New World
+# Terrain file name: C:\Users\kevin\Downloads\minewaysV1000\mineways\terrainExt.png
+# Color scheme: Standard
+# Mon Jun 13 15:56:19 2022
+
+# Selection location min to max: 32, -63, -45 to 32, 319, -45
+#   Non-empty selection location min to max: 32, -63, -45 to 32, -63, -45
+
+# Set render type: Wavefront OBJ relative indices
+# Units for the model vertex data itself: meters
+
+# 16 vertices, 12 faces (24 triangles), 0 blocks, 7 billboards/bits
+# block dimensions: X=2 by Y=2 (height) by Z=2 blocks
+# Elevation shading: no
+# Lighting: no
+# Transparent water: no
+# Map grid: no
+# File type: Export all textures to three large images
+# Texture output RGB: YES
+# Texture output A: YES
+# Texture output RGBA: YES
+# OBJ relative coordinates
+# Make groups objects: no
+# Export separate objects: YES
+# Individual blocks: no
+#   Material per family: YES
+#   Split by block type: YES
+# G3D full material: YES
+# Make Z the up direction instead of Y: no
+# Create composite overlay faces: no
+# Center model: YES
+# Export lesser blocks: YES
+# Fatten lesser blocks: no
+# Create block faces at the borders: YES
+# Make tree leaves solid: no
+# Use biomes: no
+# Rotate model 0.000000 degrees
+# Scale model by making each block 1000 mm high
+# Data operation options:
+#   Fill air bubbles: no; Seal off entrances: no; Fill in isolated tunnels in base of model: no
+#   Connect parts sharing an edge: no; Connect corner tips: no; Weld all shared edges: no
+#   Delete floating objects: trees and parts smaller than 16 blocks: no
+#   Hollow out bottom of model, making the walls 1000 mm thick: no; Superhollow: no
+# Melt snow blocks: no
+#   Debug: show separate parts as colors: no
+#   Debug: show weld blocks in bright colors: no
+
+# Full world path: C:\Users\kevin\AppData\Roaming\.minecraft\saves\New World
+# Full terrainExt.png path: C:\Users\kevin\Downloads\minewaysV1000\mineways\terrainExt.png
+# Full current path: C:\Users\kevin\Downloads\minewaysV1000\mineways
+
+mtllib Mineways2Skfb.mtl
+
+o New_World__32_-63_-45_to_32_319_-45
+vn -1 0 0
+vn 0 -1 0
+vn 0 0 -1
+vn 1 0 0
+vn 0 1 0
+vn 0 0 1
+vn -0.707107 0 -0.707107
+vn -0.707107 0 0.707107
+vn 0.707107 0 -0.707107
+vn 0.707107 0 0.707107
+vn -0.707107 -0.707107 0
+vn 0 -0.707107 -0.707107
+vn 0.707107 -0.707107 0
+vn 0 -0.707107 0.707107
+vn -0.707107 0.707107 0
+vn 0 0.707107 -0.707107
+vn 0.707107 0.707107 0
+vn 0 0.707107 0.707107
+vn -0.92388 0 -0.382683
+vn -0.92388 0 0.382683
+vn 0.92388 0 -0.382683
+vn 0.92388 0 0.382683
+vn -0.382683 0 -0.92388
+vn -0.382683 0 0.92388
+vn 0.382683 0 -0.92388
+vn 0.382683 0 0.92388
+vn -0.397273 0.9177 0
+vn 0.397273 -0.9177 0
+vn 0.397273 0.9177 0
+vn -0.397273 -0.9177 0
+vn 0 0.9177 -0.397273
+vn 0 -0.9177 0.397273
+vn 0 0.9177 0.397273
+vn 0 -0.9177 -0.397273
+vn -0.440932 0.897541 0
+vn 0.440932 -0.897541 0
+vn 0.440932 0.897541 0
+vn -0.440932 -0.897541 0
+vn 0 0.897541 -0.440932
+vn 0 -0.897541 0.440932
+vn 0 0.897541 0.440932
+vn 0 -0.897541 -0.440932
+# MWO_chest_latch
+vt 0.546875000 0.871093750
+vt 0.548828125 0.871093750
+vt 0.548828125 0.875000000
+vt 0.546875000 0.875000000
+vt 0.549804688 0.871093750
+vt 0.551757812 0.871093750
+vt 0.551757812 0.875000000
+vt 0.549804688 0.875000000
+vt 0.545898438 0.871093750
+vt 0.545898438 0.875000000
+vt 0.548828125 0.875976562
+vt 0.546875000 0.875976562
+vt 0.550781250 0.875000000
+vt 0.550781250 0.875976562
+# MWO_chest_side
+vt 0.458984375 0.983398438
+vt 0.472656250 0.983398438
+vt 0.472656250 0.997070312
+vt 0.458984375 0.997070312
+# MWO_chest_top
+vt 0.441406250 0.984375000
+vt 0.455078125 0.984375000
+vt 0.455078125 0.998046875
+vt 0.441406250 0.998046875
+# MWO_chest_front
+vt 0.476562500 0.983398438
+vt 0.490234375 0.983398438
+vt 0.490234375 0.997070312
+vt 0.476562500 0.997070312
+v 0.21875 0.21875 0.5
+v 0.28125 0.21875 0.5
+v 0.21875 0.34375 0.5
+v 0.28125 0.34375 0.5
+v 0.21875 0.21875 0.46875
+v 0.28125 0.21875 0.46875
+v 0.21875 0.34375 0.46875
+v 0.28125 0.34375 0.46875
+v 0.03125 0 0.03125
+v 0.03125 0 0.46875
+v 0.03125 0.4375 0.03125
+v 0.03125 0.4375 0.46875
+v 0.46875 0 0.03125
+v 0.46875 0 0.46875
+v 0.46875 0.4375 0.03125
+v 0.46875 0.4375 0.46875
+
+g Chest
+usemtl Chest
+f -13/-24/-37 -14/-23/-37 -16/-26/-37 -15/-25/-37
+f -9/-19/-40 -11/-22/-40 -12/-21/-40 -10/-20/-40
+f -10/-17/-42 -12/-18/-42 -16/-26/-42 -14/-23/-42
+f -9/-19/-39 -13/-24/-39 -15/-25/-39 -11/-22/-39
+f -10/-15/-38 -14/-23/-38 -13/-24/-38 -9/-16/-38
+f -15/-16/-41 -16/-13/-41 -12/-14/-41 -11/-24/-41
+f -6/-9/-42 -8/-12/-42 -7/-11/-42 -5/-10/-42
+f -7/-8/-41 -8/-5/-41 -4/-6/-41 -3/-7/-41
+f -2/-9/-40 -4/-12/-40 -8/-11/-40 -6/-10/-40
+f -2/-10/-39 -1/-9/-39 -3/-12/-39 -4/-11/-39
+f -2/-6/-38 -6/-5/-38 -5/-8/-38 -1/-7/-38
+f -1/-2/-37 -5/-1/-37 -7/-4/-37 -3/-3/-37
