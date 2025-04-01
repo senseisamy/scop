@@ -299,8 +299,6 @@ impl ApplicationHandler for App {
                 .physical_device()
                 .surface_formats(&surface, Default::default())
                 .unwrap();
-
-            println!("formats: {:?}", image_formats);
  
             let (image_format, _) = 
                 if image_formats.contains(&(Format::B8G8R8A8_UNORM, ColorSpace::SrgbNonLinear)) {
@@ -385,7 +383,7 @@ impl ApplicationHandler for App {
             previous_frame_end,
             camera: Camera {
                 target: self.object.center,
-                distance: 2.5
+                distance: 5.0
                     * f32::max(
                         self.object.size.x,
                         f32::max(self.object.size.y, self.object.size.z),

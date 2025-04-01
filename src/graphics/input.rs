@@ -179,7 +179,7 @@ impl RenderContext {
         if state.btn_reset {
             self.camera = Camera {
                 target: object.center,
-                distance: 1.5 * f32::max(object.size.x, f32::max(object.size.y, object.size.z)),
+                distance: 5.0 * f32::max(object.size.x, f32::max(object.size.y, object.size.z)),
                 ..Default::default()
             };
             self.light = Light::default();
