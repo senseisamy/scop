@@ -48,7 +48,7 @@ use vulkano::{
     render_pass::{Framebuffer, FramebufferCreateInfo, RenderPass, Subpass},
     shader::EntryPoint,
     swapchain::{
-        acquire_next_image, Surface, Swapchain, SwapchainCreateInfo, SwapchainPresentInfo,
+        acquire_next_image, ColorSpace, Surface, Swapchain, SwapchainCreateInfo, SwapchainPresentInfo
     },
     sync::{self, GpuFuture},
     DeviceSize, Validated, VulkanError, VulkanLibrary,
@@ -294,11 +294,21 @@ impl ApplicationHandler for App {
                 .surface_capabilities(&surface, Default::default())
                 .unwrap();
 
-            let (image_format, _) = self
+            let image_formats = self
                 .device
                 .physical_device()
                 .surface_formats(&surface, Default::default())
-                .unwrap()[0];
+                .unwrap();
+
+            println!("formats: {:?}", image_formats);
+ 
+            let (image_format, _) = 
+                if image_formats.contains(&(Format::B8G8R8A8_UNORM, ColorSpace::SrgbNonLinear)) {
+                    (Format::B8G8R8A8_UNORM, ColorSpace::SrgbNonLinear)
+                } else {
+                    println!("Warning: the device doesnt support B8G8R8A8_UNORM, the colors might be off");
+                    image_formats[0]
+                };
 
             Swapchain::new(
                 self.device.clone(),
