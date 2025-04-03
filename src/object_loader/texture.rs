@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use std::error::Error;
 
 #[derive(Debug, Clone)]
 pub struct Texture {
@@ -8,14 +8,18 @@ pub struct Texture {
 }
 
 impl Texture {
-    pub fn parse_ppm(file: &str) -> Result<Self> {
+    pub fn parse_ppm(file: &str) -> Result<Self, Box<dyn Error>> {
         let lines: Vec<&str> = file
             .lines()
             .filter(|l| !l.starts_with("#") && !l.is_empty())
             .collect();
 
-        if lines.len() < 3 || lines[0] != "P3" {
-            return Err(anyhow!("Invalid ppm file"));
+        if lines.len() < 3 {
+            return Err("ppm parsing error: file contains less than 3 lines".into());
+        }
+
+        if lines[0] != "P3" {
+            return Err("ppm parsing error: only ppm files of the type P3 (rgb values for each pixel in ascii) are supported".into());
         }
 
         let size: Vec<&str> = lines[1].split(' ').collect();
@@ -40,9 +44,7 @@ impl Texture {
         }
 
         if texture.data.len() as u32 != 4 * texture.height * texture.width {
-            return Err(anyhow!(
-                "The ppm file doesnt contain all the rgb values for its dimensions"
-            ));
+            return Err("The ppm file doesnt contain all the rgb values for its dimensions".into());
         }
 
         Ok(texture)

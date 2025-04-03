@@ -1,10 +1,9 @@
 use super::{Object, Vertexxx};
 use crate::math::Vec3;
-use anyhow::{anyhow, Context, Result};
-use std::{collections::HashMap, usize};
+use std::{collections::HashMap, error::Error, usize};
 
 impl Object {
-    pub fn parse(object: &str) -> Result<Self> {
+    pub fn parse(object: &str) -> Result<Self, Box<dyn Error>> {
         let mut v: Vec<[[f32; 3]; 2]> = vec![[[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]];
         let mut vt: Vec<[f32; 2]> = vec![[0.0, 0.0]];
         let mut vn: Vec<[f32; 3]> = vec![[0.0, 0.0, 0.0]];
@@ -54,21 +53,27 @@ impl Object {
                             color,
                         ]);
                     } else {
-                        return Err(anyhow!(
-                            "line {line_number}: expected (x, y, z [, r, g, b]) format"
-                        ));
+                        return Err(
+                            format!("obj parsing error: line {line_number}: expected (x, y, z [, r, g, b]) format").into()
+                        );
                     }
                 }
                 "vt" => {
                     if line.len() < 3 || line.len() > 4 {
-                        return Err(anyhow!("line {line_number}: expected (u, v, [w]) format"));
+                        return Err(format!(
+                            "obj parsing error: line {line_number}: expected (u, v, [w]) format"
+                        )
+                        .into());
                     }
                     let tmp: [f32; 2] = [line[1].parse()?, line[2].parse()?];
                     vt.push([tmp[0], 1.0 - tmp[1]]);
                 }
                 "vn" => {
                     if line.len() != 4 {
-                        return Err(anyhow!("line {line_number}: expected (x, y, z) format"));
+                        return Err(format!(
+                            "obj parsing error: line {line_number}: expected (x, y, z) format"
+                        )
+                        .into());
                     }
                     vn.push([line[1].parse()?, line[2].parse()?, line[3].parse()?]);
                 }
@@ -89,17 +94,23 @@ impl Object {
                         handle_face(v1, v3, v4, &mut obj, &mut unique_vertices, has_normal);
                     } else if line.len() > 5 {
                         println!(
-                            "warning: line {}: face has more than 5 vertices",
+                            "obj warning: line {}: faces with more than 5 vertices are not handled and are ignored",
                             line_number
                         );
                     } else {
-                        return Err(anyhow!(
-                            "line {line_number}: expected (a, b, c [, d]) format"
-                        ));
+                        return Err(format!(
+                            "obj parsing error: line {line_number}: expected (a, b, c [, d]) format"
+                        )
+                        .into());
                     }
                 }
                 "#" | "o" | "s" | "mtllib" | "usemtl" | "g" => continue,
-                _ => return Err(anyhow!("line {line_number}: invalid line start")),
+                _ => {
+                    return Err(format!(
+                        "obj parsing error: line {line_number}: invalid line start"
+                    )
+                    .into())
+                }
             }
         }
 
@@ -149,7 +160,7 @@ fn parse_face_el(
     v: &[[[f32; 3]; 2]],
     vt: &[[f32; 2]],
     vn: &[[f32; 3]],
-) -> Result<(Vertexxx, bool, bool)> {
+) -> Result<(Vertexxx, bool, bool), Box<dyn Error>> {
     let el: Vec<&str> = face.split('/').collect();
 
     match el.len() {
@@ -193,16 +204,17 @@ fn parse_face_el(
                 Ok((vertex, true, false))
             }
         }
-        _ => Err(anyhow!("Parsing error")),
+        _ => Err("Error parsing face".into()),
     }
 }
 
-fn convert_index(i: &str, size: usize) -> Result<usize> {
+fn convert_index(i: &str, size: usize) -> Result<usize, Box<dyn Error>> {
     let signed: i32 = i.parse()?;
     if signed < 0 {
-        Ok(size
-            .checked_sub(signed.abs() as usize)
-            .context("failed to get index")?)
+        match size.checked_sub(signed.abs() as usize) {
+            Some(unsigned) => Ok(unsigned),
+            None => Err("obj parsing error: index error while parsing face".into()),
+        }
     } else {
         Ok(signed as usize)
     }

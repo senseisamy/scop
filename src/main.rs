@@ -2,7 +2,6 @@ mod graphics;
 mod math;
 mod object_loader;
 
-use anyhow::{anyhow, Result};
 use graphics::App;
 use object_loader::texture::Texture;
 use object_loader::Object;
@@ -12,26 +11,24 @@ use winit::event_loop::EventLoop;
 
 const BG_COLOR: (f32, f32, f32) = (40.0, 40.0, 40.0);
 
-fn main() -> Result<()> {
+fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() != 3 {
-        return Err(anyhow!("This program expects 2 arguments"));
+        panic!("This program expects 2 arguments");
     }
 
     let object = {
-        let objfile = fs::read_to_string(&args[1])?;
-        Object::parse(&objfile)?
+        let objfile = fs::read_to_string(&args[1]).expect("obj file not found");
+        Object::parse(&objfile).expect("failed to parse the obj file")
     };
 
     let texture = {
-        let textfile = fs::read_to_string(&args[2])?;
-        Texture::parse_ppm(&textfile)?
+        let textfile = fs::read_to_string(&args[2]).expect("ppm file not found");
+        Texture::parse_ppm(&textfile).expect("failed to parse the ppm file")
     };
 
-    let event_loop = EventLoop::new()?;
-    let mut app = App::new(&event_loop, object, texture)?;
+    let event_loop = EventLoop::new().unwrap();
+    let mut app = App::new(&event_loop, object, texture).unwrap();
 
-    event_loop.run_app(&mut app)?;
-
-    Ok(())
+    event_loop.run_app(&mut app).unwrap();
 }

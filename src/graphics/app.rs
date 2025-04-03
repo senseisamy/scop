@@ -4,8 +4,7 @@ use crate::{
     object_loader::{texture::Texture, Object, Vertexxx},
     BG_COLOR,
 };
-use anyhow::{Context, Result};
-use std::sync::Arc;
+use std::{error::Error, sync::Arc};
 use vulkano::{
     buffer::{
         allocator::{SubbufferAllocator, SubbufferAllocatorCreateInfo},
@@ -48,7 +47,8 @@ use vulkano::{
     render_pass::{Framebuffer, FramebufferCreateInfo, RenderPass, Subpass},
     shader::EntryPoint,
     swapchain::{
-        acquire_next_image, ColorSpace, Surface, Swapchain, SwapchainCreateInfo, SwapchainPresentInfo
+        acquire_next_image, ColorSpace, Surface, Swapchain, SwapchainCreateInfo,
+        SwapchainPresentInfo,
     },
     sync::{self, GpuFuture},
     DeviceSize, Validated, VulkanError, VulkanLibrary,
@@ -63,7 +63,11 @@ use winit::{
 
 impl App {
     // this function creates the App object and initializes everything before creating a window
-    pub fn new(event_loop: &EventLoop<()>, object: Object, texture: Texture) -> Result<Self> {
+    pub fn new(
+        event_loop: &EventLoop<()>,
+        object: Object,
+        texture: Texture,
+    ) -> Result<Self, Box<dyn Error>> {
         // load the vulkan library and create an instance of it
         let library = VulkanLibrary::new()?;
 
@@ -108,7 +112,7 @@ impl App {
                     PhysicalDeviceType::Other => 4,
                     _ => 5,
                 })
-                .context("no suitable physical device found")?;
+                .unwrap();
 
             println!(
                 "Using physical device: {} (type: {:?})",
@@ -128,7 +132,7 @@ impl App {
                 },
             )?;
 
-            (device, queues.next().context("could not create a queue")?)
+            (device, queues.next().unwrap())
         };
 
         // creating allocators for vulkan
@@ -299,12 +303,14 @@ impl ApplicationHandler for App {
                 .physical_device()
                 .surface_formats(&surface, Default::default())
                 .unwrap();
- 
-            let (image_format, _) = 
+
+            let (image_format, _) =
                 if image_formats.contains(&(Format::B8G8R8A8_UNORM, ColorSpace::SrgbNonLinear)) {
                     (Format::B8G8R8A8_UNORM, ColorSpace::SrgbNonLinear)
                 } else {
-                    println!("Warning: the device doesnt support B8G8R8A8_UNORM, the colors might be off");
+                    println!(
+                    "Warning: the device doesnt support B8G8R8A8_UNORM, the colors might be off"
+                );
                     image_formats[0]
                 };
 
