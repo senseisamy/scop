@@ -116,6 +116,10 @@ impl Object {
 
         obj.set_obj_size_and_center();
 
+        if vt.len() == 1 {
+            obj.set_naive_texture_coordinate();
+        }
+
         Ok(obj)
     }
 
@@ -152,6 +156,12 @@ impl Object {
             y: (vmin.y + vmax.y) / 2.0,
             z: (vmin.z + vmax.z) / 2.0,
         };
+    }
+
+    fn set_naive_texture_coordinate(&mut self) {
+        for vertex in self.vertex.iter_mut() {
+            vertex.texture = [vertex.position[2] / self.size.z, -vertex.position[1] / self.size.y]
+        }
     }
 }
 
