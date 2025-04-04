@@ -114,16 +114,16 @@ impl Object {
             }
         }
 
-        obj.set_obj_size_and_center();
+        let (vmin, vmax) = obj.set_obj_size_and_center();
 
         if vt.len() == 1 {
-            obj.set_naive_texture_coordinate();
+            obj.set_naive_texture_coordinate(vmin, vmax);
         }
 
         Ok(obj)
     }
 
-    fn set_obj_size_and_center(&mut self) {
+    fn set_obj_size_and_center(&mut self) -> (Vec3, Vec3) {
         let mut vmax = Vec3 {
             x: std::f32::MIN,
             y: std::f32::MIN,
@@ -156,11 +156,15 @@ impl Object {
             y: (vmin.y + vmax.y) / 2.0,
             z: (vmin.z + vmax.z) / 2.0,
         };
+
+        (vmin, vmax)
     }
 
-    fn set_naive_texture_coordinate(&mut self) {
+    fn set_naive_texture_coordinate(&mut self, vmin: Vec3, vmax: Vec3) {
         for vertex in self.vertex.iter_mut() {
-            vertex.texture = [vertex.position[2] / self.size.z, -vertex.position[1] / self.size.y]
+            let y = (vertex.position[1] - vmin.y) / (vmax.y - vmin.y);
+            let z = (vertex.position[2] - vmin.z) / (vmax.z - vmin.z);
+            vertex.texture = [z, -y];
         }
     }
 }
