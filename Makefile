@@ -1,13 +1,9 @@
-all: build copy
-
 release:
 	cargo build --release
 	ln -s -f target/release/scop ./scop
 
-build:
+debug:
 	cargo build
-
-copy:
 	ln -s -f target/debug/scop ./scop
 
 check:
@@ -17,5 +13,5 @@ clean:
 	rm -f scop
 	cargo clean
 
-.PHONY: release build copy check clean
+.PHONY: release debug check clean
 .SILENT:
