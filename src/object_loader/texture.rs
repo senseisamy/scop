@@ -15,11 +15,11 @@ impl Texture {
             .collect();
 
         if lines.len() < 3 {
-            return Err("ppm parsing error: file contains less than 3 lines".into());
+            return Err("file contains less than 3 lines".into());
         }
 
         if lines[0] != "P3" {
-            return Err("ppm parsing error: only ppm files of the type P3 (rgb values for each pixel in ascii) are supported".into());
+            return Err("only ppm files of the type P3 (rgb values for each pixel in ascii) are supported".into());
         }
 
         let size: Vec<&str> = lines[1].split(' ').collect();

@@ -19,12 +19,18 @@ fn main() {
 
     let object = {
         let objfile = fs::read_to_string(&args[1]).expect("obj file not found");
-        Object::parse(&objfile).expect("failed to parse the obj file")
+        match Object::parse(&objfile) {
+            Err(e) => panic!("failed to parse the obj file: {e}"),
+            Ok(obj) => obj
+        }
     };
 
     let texture = {
         let textfile = fs::read_to_string(&args[2]).expect("ppm file not found");
-        Texture::parse_ppm(&textfile).expect("failed to parse the ppm file")
+        match Texture::parse_ppm(&textfile) {
+            Err(e) => panic!("failed to parse the ppm file: {e}"),
+            Ok(tex) => tex
+        }
     };
 
     let event_loop = EventLoop::new().unwrap();

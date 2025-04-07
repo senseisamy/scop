@@ -53,27 +53,24 @@ impl Object {
                             color,
                         ]);
                     } else {
-                        return Err(
-                            format!("obj parsing error: line {line_number}: expected (x, y, z [, r, g, b]) format").into()
-                        );
+                        return Err(format!(
+                            "line {line_number}: expected (x, y, z [, r, g, b]) format"
+                        )
+                        .into());
                     }
                 }
                 "vt" => {
                     if line.len() < 3 || line.len() > 4 {
-                        return Err(format!(
-                            "obj parsing error: line {line_number}: expected (u, v, [w]) format"
-                        )
-                        .into());
+                        return Err(
+                            format!("line {line_number}: expected (u, v, [w]) format").into()
+                        );
                     }
                     let tmp: [f32; 2] = [line[1].parse()?, line[2].parse()?];
                     vt.push([tmp[0], 1.0 - tmp[1]]);
                 }
                 "vn" => {
                     if line.len() != 4 {
-                        return Err(format!(
-                            "obj parsing error: line {line_number}: expected (x, y, z) format"
-                        )
-                        .into());
+                        return Err(format!("line {line_number}: expected (x, y, z) format").into());
                     }
                     vn.push([line[1].parse()?, line[2].parse()?, line[3].parse()?]);
                 }
@@ -98,19 +95,13 @@ impl Object {
                             line_number
                         );
                     } else {
-                        return Err(format!(
-                            "obj parsing error: line {line_number}: expected (a, b, c [, d]) format"
-                        )
-                        .into());
+                        return Err(
+                            format!("line {line_number}: expected (a, b, c [, d]) format").into(),
+                        );
                     }
                 }
                 "#" | "o" | "s" | "mtllib" | "usemtl" | "g" => continue,
-                _ => {
-                    return Err(format!(
-                        "obj parsing error: line {line_number}: invalid line start"
-                    )
-                    .into())
-                }
+                _ => return Err(format!("line {line_number}: invalid line start").into()),
             }
         }
 
@@ -227,7 +218,7 @@ fn convert_index(i: &str, size: usize) -> Result<usize, Box<dyn Error>> {
     if signed < 0 {
         match size.checked_sub(signed.abs() as usize) {
             Some(unsigned) => Ok(unsigned),
-            None => Err("obj parsing error: index error while parsing face".into()),
+            None => Err("index error while parsing face".into()),
         }
     } else {
         Ok(signed as usize)
