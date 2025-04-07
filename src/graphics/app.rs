@@ -1,10 +1,10 @@
-use super::{input::InputState, App, Camera, Light, RenderContext, TimeInfo};
+use super::{input::InputState, App, Camera, Data, Light, RenderContext, TimeInfo};
 use crate::{
     math::Mat4,
     object_loader::{texture::Texture, Object, Vertexxx},
     BG_COLOR,
 };
-use std::{error::Error, sync::Arc};
+use std::{error::Error, fs::File, io::Read, sync::Arc};
 use vulkano::{
     buffer::{
         allocator::{SubbufferAllocator, SubbufferAllocatorCreateInfo},
@@ -45,7 +45,7 @@ use vulkano::{
         PipelineShaderStageCreateInfo,
     },
     render_pass::{Framebuffer, FramebufferCreateInfo, RenderPass, Subpass},
-    shader::EntryPoint,
+    shader::{spirv, EntryPoint, ShaderModule, ShaderModuleCreateInfo},
     swapchain::{
         acquire_next_image, ColorSpace, Surface, Swapchain, SwapchainCreateInfo,
         SwapchainPresentInfo,
@@ -360,15 +360,21 @@ impl ApplicationHandler for App {
         .unwrap();
 
         // loading the shaders
-        let vs = vs::load(self.device.clone())
-            .unwrap()
-            .entry_point("main")
-            .unwrap();
+        let vs = {
+            let code = read_spirv_words_from_file("src/shaders/vertex.spv");
+            let module = unsafe {
+                ShaderModule::new(self.device.clone(), ShaderModuleCreateInfo::new(&code)).unwrap()
+            };
+            module.entry_point("main").unwrap()
+        };
 
-        let fs = fs::load(self.device.clone())
-            .unwrap()
-            .entry_point("main")
-            .unwrap();
+        let fs = {
+            let code = read_spirv_words_from_file("src/shaders/fragment.spv");
+            let module = unsafe {
+                ShaderModule::new(self.device.clone(), ShaderModuleCreateInfo::new(&code)).unwrap()
+            };
+            module.entry_point("main").unwrap()
+        };
 
         let (framebuffers, pipeline) = window_size_dependent_setup(
             window_size,
@@ -463,7 +469,7 @@ impl ApplicationHandler for App {
 
                     let proj = Mat4::perspective(0.8, aspect_ratio, 1.0, 10000.0);
 
-                    let uniform_data = vs::Data {
+                    let uniform_data = Data {
                         world: Mat4::identity().0,
                         view: (camera.direction_view_matrix(camera.target_dir())).0,
                         proj: proj.0,
@@ -709,16 +715,11 @@ fn window_size_dependent_setup(
     (framebuffers, pipeline)
 }
 
-mod vs {
-    vulkano_shaders::shader! {
-        ty: "vertex",
-        path: "src/shaders/vertex.glsl"
-    }
-}
-
-mod fs {
-    vulkano_shaders::shader! {
-        ty: "fragment",
-        path: "src/shaders/fragment.glsl"
-    }
+fn read_spirv_words_from_file(file: &str) -> Vec<u32> {
+    let mut f = File::open(file).unwrap();
+    let mut bytes = vec![];
+    f.read_to_end(&mut bytes).unwrap();
+    spirv::bytes_to_words(&bytes)
+        .unwrap()
+        .into_owned()
 }

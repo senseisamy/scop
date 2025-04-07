@@ -10,18 +10,7 @@ use crate::{
 use input::InputState;
 use std::{sync::Arc, time::Instant};
 use vulkano::{
-    buffer::{allocator::SubbufferAllocator, Subbuffer},
-    command_buffer::allocator::StandardCommandBufferAllocator,
-    descriptor_set::allocator::StandardDescriptorSetAllocator,
-    device::{Device, Queue},
-    image::{sampler::Sampler, view::ImageView},
-    instance::Instance,
-    memory::allocator::StandardMemoryAllocator,
-    pipeline::GraphicsPipeline,
-    render_pass::{Framebuffer, RenderPass},
-    shader::EntryPoint,
-    swapchain::Swapchain,
-    sync::GpuFuture,
+    buffer::{allocator::SubbufferAllocator, BufferContents, Subbuffer}, command_buffer::allocator::StandardCommandBufferAllocator, descriptor_set::allocator::StandardDescriptorSetAllocator, device::{Device, Queue}, image::{sampler::Sampler, view::ImageView}, instance::Instance, memory::allocator::StandardMemoryAllocator, padded::Padded, pipeline::GraphicsPipeline, render_pass::{Framebuffer, RenderPass}, shader::EntryPoint, swapchain::Swapchain, sync::GpuFuture
 };
 use winit::window::Window;
 
@@ -56,6 +45,19 @@ pub struct RenderContext {
     input_state: InputState,
     time_info: TimeInfo,
     use_texture: bool,
+}
+
+// data to be passed to the shaders
+#[repr(C)]
+#[derive(BufferContents, Copy, Clone)]
+pub struct Data {
+    world: [[f32; 4]; 4],
+    view: [[f32; 4]; 4],
+    proj: [[f32; 4]; 4],
+    light_pos: Padded<[f32; 3], 4>,
+    light_color: Padded<[f32; 3], 4>,
+    ambient_light_color: [f32; 3],
+    texture: u32
 }
 
 pub struct Camera {

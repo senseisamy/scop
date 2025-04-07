@@ -10,6 +10,7 @@ Simply run `make release`
 
 ### Without make
 
+You'll need to compile the shaders in spv before running cargo  
 Run `cargo build -r`. The executable will be in ./target/release
 
 
