@@ -279,7 +279,9 @@ impl App {
 }
 
 impl ApplicationHandler for App {
+    // this function is called when the application is resumed, this means we can create the window and start to load everything we will need to draw on it
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
+        // creates the window and surface
         let window = Arc::new(
             event_loop
                 .create_window(Window::default_attributes().with_title("scop!"))
@@ -291,6 +293,7 @@ impl ApplicationHandler for App {
 
         let window_size = window.inner_size();
 
+        // Create the swapchain which holds a queue of images that are waiting to be presented on the screen
         let (swapchain, images) = {
             let surface_capabilities = self
                 .device
@@ -309,8 +312,8 @@ impl ApplicationHandler for App {
                     (Format::B8G8R8A8_UNORM, ColorSpace::SrgbNonLinear)
                 } else {
                     println!(
-                    "Warning: the device doesnt support B8G8R8A8_UNORM, the colors might be off"
-                );
+                        "Warning: the device doesnt support B8G8R8A8_UNORM, the colors might be off"
+                    );
                     image_formats[0]
                 };
 
@@ -356,6 +359,7 @@ impl ApplicationHandler for App {
         )
         .unwrap();
 
+        // loading the shaders
         let vs = vs::load(self.device.clone())
             .unwrap()
             .entry_point("main")
@@ -403,6 +407,7 @@ impl ApplicationHandler for App {
         })
     }
 
+    // this is the main loop of the window
     fn window_event(
         &mut self,
         event_loop: &ActiveEventLoop,
@@ -413,7 +418,10 @@ impl ApplicationHandler for App {
 
         match event {
             WindowEvent::CloseRequested => event_loop.exit(),
+
             WindowEvent::Resized(_) => rcx.recreate_swapchain = true,
+
+            // this is where we draw each frame
             WindowEvent::RedrawRequested => {
                 let window_size = rcx.window.inner_size();
 
@@ -445,6 +453,7 @@ impl ApplicationHandler for App {
                     rcx.recreate_swapchain = false;
                 }
 
+                // creating the uniform buffer to pass to the shaders
                 let uniform_buffer = {
                     let aspect_ratio = rcx.swapchain.image_extent()[0] as f32
                         / rcx.swapchain.image_extent()[1] as f32;
@@ -605,6 +614,7 @@ impl ApplicationHandler for App {
     }
 }
 
+// this function creates the framebuffers and the graphics pipeline, it is called when we create the window and when we resize it
 fn window_size_dependent_setup(
     window_size: PhysicalSize<u32>,
     images: &[Arc<Image>],
